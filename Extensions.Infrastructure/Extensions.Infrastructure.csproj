@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Extensions.Infrastructure</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>JanKrajewskiIT</Authors>
     <Company>Extensions</Company>
     <PackageDescription>Infrastructure wiring for ASP.NET Core apps: auth, database, caching, observability, validation and more.</PackageDescription>
@@ -43,8 +43,8 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Extensions.Application" Version="1.0.1" />
-    <PackageReference Include="Extensions.Domain" Version="1.0.1" />
+    <PackageReference Include="Extensions.Application" />
+    <PackageReference Include="Extensions.Domain" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,11 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="Directory.Packages.props" />
+    <File Path="nuget.config" />
+    <File Path="opencode.json" />
+    <File Path="README.md" />
+  </Folder>
   <Project Path="Extensions.Application/Extensions.Application.csproj" />
   <Project Path="Extensions.Domain/Extensions.Domain.csproj" />
   <Project Path="Extensions.Infrastructure/Extensions.Infrastructure.csproj" />

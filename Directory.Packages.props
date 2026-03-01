@@ -35,4 +35,8 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.0.0" />
   </ItemGroup>
+  <ItemGroup Label="Internal Dependencies">
+    <PackageVersion Include="Extensions.Application" Version="1.0.2" />
+    <PackageVersion Include="Extensions.Domain" Version="1.0.2" />
+  </ItemGroup>
 </Project>
