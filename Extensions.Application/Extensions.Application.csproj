@@ -9,7 +9,7 @@
     <Authors>JanKrajewskiIT</Authors>
     <Company>Extensions</Company>
     <PackageDescription>CQRS command and query marker interfaces and handler contracts.</PackageDescription>
-    <RepositoryUrl>https://github.com/JanKrajewskiIT/Extensions</RepositoryUrl>
+    <RepositoryUrl>https://github.com/JanKrajewskiIT/extensions</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Deterministic>true</Deterministic>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
