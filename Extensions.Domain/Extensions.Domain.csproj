@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Recron.Extensions.Domain</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Recron Team</Authors>
+    <Company>Recron</Company>
+    <PackageDescription>Domain layer for Recron extensions.</PackageDescription>
+    <RepositoryUrl>https://github.com/jkrajewski/Recron</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,41 @@
+name: Publish NuGet Packages
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      env:
+        DOTNET_INSTALL_DIR: ./dotnet
+
+    - name: Restore dependencies
+      run: dotnet restore Extensions.slnx
+
+    - name: Build
+      run: dotnet build Extensions.slnx --configuration Release --no-restore
+
+    - name: Pack
+      run: |
+        dotnet pack Extensions.Domain/Extensions.Domain.csproj --configuration Release --no-build --output nupkgs
+        dotnet pack Extensions.Application/Extensions.Application.csproj --configuration Release --no-build --output nupkgs
+        dotnet pack Extensions.Infrastructure/Extensions.Infrastructure.csproj --configuration Release --no-build --output nupkgs
+
+    - name: Publish to GitHub Packages
+      run: dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Extensions.Application/Extensions.Application.csproj" />
+  <Project Path="Extensions.Domain/Extensions.Domain.csproj" />
+  <Project Path="Extensions.Infrastructure/Extensions.Infrastructure.csproj" />
+</Solution>

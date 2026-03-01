@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Recron.Extensions.Infrastructure</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Recron Team</Authors>
+    <Company>Recron</Company>
+    <PackageDescription>Infrastructure layer for Recron extensions.</PackageDescription>
+    <RepositoryUrl>https://github.com/jkrajewski/Recron</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Aspire.Keycloak.Authentication" />
+		<PackageReference Include="FluentValidation" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
+		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="Serilog.Enrichers.Environment" />
+		<PackageReference Include="Serilog.Enrichers.Thread" />
+		<PackageReference Include="Serilog.Sinks.Console" />
+		<PackageReference Include="Serilog.Sinks.OpenTelemetry" />
+	</ItemGroup>
+
+	<ItemGroup Label="Aspire">
+		<PackageReference Include="Aspire.Npgsql" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Extensions.Application\Extensions.Application.csproj" />
+    <ProjectReference Include="..\Extensions.Domain\Extensions.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
