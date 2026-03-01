@@ -43,8 +43,8 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Extensions.Application\Extensions.Application.csproj" />
-    <ProjectReference Include="..\Extensions.Domain\Extensions.Domain.csproj" />
+    <PackageReference Include="Extensions.Application" Version="1.0.1" />
+    <PackageReference Include="Extensions.Domain" Version="1.0.1" />
   </ItemGroup>
 
 </Project>

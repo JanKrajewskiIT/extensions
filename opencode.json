@@ -1,0 +1,14 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "github-copilot/claude-opus-4.6",
+  "instructions": ["AGENTS.md"],
+  "permission": {
+    "read": "allow",
+    "edit": "allow",
+    "write": "allow",
+    "bash": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "webfetch": "allow"
+  }
+}
