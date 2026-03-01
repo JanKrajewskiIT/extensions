@@ -26,7 +26,7 @@ public static class HandlerRegistrationExtensions
 	/// </summary>
 	public static IServiceCollection AddHandlersFromAssembly(this IServiceCollection services, Assembly assembly)
 	{
-		var handlerTypes = assembly.GetExportedTypes()
+		var handlerTypes = assembly.GetTypes()
 			.Where(t => t is { IsClass: true, IsAbstract: false }
 			            && t.GetInterfaces().Any(IsHandlerInterface));
 

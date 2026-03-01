@@ -1,5 +1,6 @@
 using Extensions.Infrastructure.Security;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 
@@ -9,8 +10,11 @@ public static class OpenApiExtensions
 {
 	public static IServiceCollection AddOpenApiWithAuth(
 		this IServiceCollection services,
-		KeycloakOptions keycloakOptions)
+		IConfigurationSection keycloakSection)
 	{
+		var keycloakOptions = keycloakSection.Get<KeycloakOptions>()
+			?? throw new InvalidOperationException("Keycloak configuration section is missing or invalid.");
+
 		return services.AddOpenApi(options =>
 		{
 			options.AddDocumentTransformer((document, _, _) =>
@@ -32,13 +36,18 @@ public static class OpenApiExtensions
 					}
 				};
 
-				foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations!))
+				foreach (var path in document.Paths.Values)
 				{
-					operation.Value.Security ??= [];
-					operation.Value.Security.Add(new OpenApiSecurityRequirement
+					if (path.Operations is null) continue;
+
+					foreach (var operation in path.Operations.Values)
 					{
-						[new OpenApiSecuritySchemeReference("oauth2", document)] = []
-					});
+						operation.Security ??= [];
+						operation.Security.Add(new OpenApiSecurityRequirement
+						{
+							[new OpenApiSecuritySchemeReference("oauth2", document)] = []
+						});
+					}
 				}
 
 				return Task.CompletedTask;
@@ -46,7 +55,7 @@ public static class OpenApiExtensions
 		});
 	}
 
-	public static IApplicationBuilder UseOpenApiWithAuth(this WebApplication app)
+	public static WebApplication UseOpenApiWithAuth(this WebApplication app)
 	{
 		app.MapOpenApi();
 

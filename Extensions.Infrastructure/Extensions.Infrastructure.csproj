@@ -6,11 +6,14 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Extensions.Infrastructure</PackageId>
     <Version>1.0.0</Version>
-    <Authors>Recron Team</Authors>
-    <Company>Recron</Company>
-    <PackageDescription>Infrastructure layer for Recron extensions.</PackageDescription>
-    <RepositoryUrl>https://github.com/jkrajewski/Recron</RepositoryUrl>
+    <Authors>jkrajewski</Authors>
+    <Company>Extensions</Company>
+    <PackageDescription>Infrastructure wiring for ASP.NET Core apps: auth, database, caching, observability, validation and more.</PackageDescription>
+    <RepositoryUrl>https://github.com/jkrajewski/Extensions</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <Deterministic>true</Deterministic>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 
 	<ItemGroup>

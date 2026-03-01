@@ -57,10 +57,12 @@ internal sealed class GlobalExceptionHandler(
 		DataInconsistencyException => StatusCodes.Status422UnprocessableEntity,
 		ArgumentNullException => StatusCodes.Status422UnprocessableEntity,
 		ArgumentException => StatusCodes.Status422UnprocessableEntity,
+		// InvalidOperationException signals a domain conflict (e.g. duplicate, wrong state)
 		InvalidOperationException => StatusCodes.Status409Conflict,
 		KeyNotFoundException => StatusCodes.Status404NotFound,
 		TimeoutException => StatusCodes.Status408RequestTimeout,
 		NotImplementedException => StatusCodes.Status501NotImplemented,
+		// UnauthorizedAccessException is a permissions failure, not an authentication failure
 		UnauthorizedAccessException => StatusCodes.Status403Forbidden,
 		HttpRequestException { StatusCode: HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden } ex
 			=> (int)ex.StatusCode,

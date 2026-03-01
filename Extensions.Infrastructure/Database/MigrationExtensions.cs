@@ -12,9 +12,9 @@ public static class MigrationExtensions
 		await using var scope = services.CreateAsyncScope();
 		var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
 
-		var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync(cancellationToken);
+		var pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
 
-		if (pendingMigrations.Any())
+		if (pendingMigrations.Count > 0)
 		{
 			await dbContext.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
 

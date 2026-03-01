@@ -37,7 +37,7 @@ public static class ConfigurationExtensions
 
 		if (beforeRun is not null)
 		{
-			await beforeRun(app.Services, CancellationToken.None);
+			await beforeRun(app.Services, app.Lifetime.ApplicationStopping);
 		}
 
 		await app.RunAsync();
@@ -61,11 +61,10 @@ public static class ConfigurationExtensions
 		builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 		builder.Services.AddAllCors(builder.Configuration);
-		builder.Services.AddAppRateLimiting();
+		builder.Services.AddAppRateLimiting(builder.Configuration);
 		builder.Services.AddAuth(keycloakSection);
 
-		var keycloakOptions = keycloakSection.Get<KeycloakOptions>()!;
-		builder.Services.AddOpenApiWithAuth(keycloakOptions);
+		builder.Services.AddOpenApiWithAuth(keycloakSection);
 		builder.Services.AddEndpointsApiExplorer();
 
 		builder.Services.AddProblemDetails();
@@ -109,6 +108,5 @@ public static class ConfigurationExtensions
 		options.Converters.Add(enumConverter);
 		options.AllowTrailingCommas = false;
 		options.ReadCommentHandling = JsonCommentHandling.Disallow;
-		options.AllowOutOfOrderMetadataProperties = false;
 	}
 }

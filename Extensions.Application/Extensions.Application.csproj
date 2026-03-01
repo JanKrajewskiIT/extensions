@@ -6,10 +6,13 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Extensions.Application</PackageId>
     <Version>1.0.0</Version>
-    <Authors>Recron Team</Authors>
-    <Company>Recron</Company>
-    <PackageDescription>Application layer for Recron extensions.</PackageDescription>
-    <RepositoryUrl>https://github.com/jkrajewski/Recron</RepositoryUrl>
+    <Authors>jkrajewski</Authors>
+    <Company>Extensions</Company>
+    <PackageDescription>CQRS command and query marker interfaces and handler contracts.</PackageDescription>
+    <RepositoryUrl>https://github.com/jkrajewski/Extensions</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <Deterministic>true</Deterministic>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 </Project>

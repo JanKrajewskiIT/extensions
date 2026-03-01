@@ -8,30 +8,30 @@ public static class LoggingExtensions
 {
 	public static WebApplicationBuilder AddStructuredLogging(this WebApplicationBuilder builder)
 	{
-		Log.Logger = new LoggerConfiguration()
-			.ReadFrom.Configuration(builder.Configuration)
-			.Enrich.FromLogContext()
-			.Enrich.WithMachineName()
-			.Enrich.WithThreadId()
-			.Enrich.WithEnvironmentName()
-			.Enrich.WithProperty("ApplicationName", builder.Environment.ApplicationName)
-			.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
-			.WriteTo.OpenTelemetry(options =>
-			{
-				options.Endpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317";
-				options.Protocol = Serilog.Sinks.OpenTelemetry.OtlpProtocol.Grpc;
-				options.ResourceAttributes = new Dictionary<string, object>
+		builder.Host.UseSerilog((context, _, loggerConfig) =>
+		{
+			loggerConfig
+				.ReadFrom.Configuration(context.Configuration)
+				.Enrich.FromLogContext()
+				.Enrich.WithMachineName()
+				.Enrich.WithThreadId()
+				.Enrich.WithEnvironmentName()
+				.Enrich.WithProperty("ApplicationName", context.HostingEnvironment.ApplicationName)
+				.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+				.WriteTo.OpenTelemetry(options =>
 				{
-					["service.name"] = builder.Environment.ApplicationName
-				};
-			})
-			.MinimumLevel.Information()
-			.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-			.MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
-			.MinimumLevel.Override("System", LogEventLevel.Warning)
-			.CreateLogger();
-
-		builder.Host.UseSerilog();
+					options.Endpoint = context.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317";
+					options.Protocol = Serilog.Sinks.OpenTelemetry.OtlpProtocol.Grpc;
+					options.ResourceAttributes = new Dictionary<string, object>
+					{
+						["service.name"] = context.HostingEnvironment.ApplicationName
+					};
+				})
+				.MinimumLevel.Information()
+				.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+				.MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+				.MinimumLevel.Override("System", LogEventLevel.Warning);
+		});
 
 		return builder;
 	}
@@ -58,3 +58,4 @@ public static class LoggingExtensions
 		return app;
 	}
 }
+

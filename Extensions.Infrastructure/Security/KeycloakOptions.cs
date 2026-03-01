@@ -2,12 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Extensions.Infrastructure.Security;
 
-public record KeycloakOptions(
-	[Required] string Authority,
-	[Required] string Realm,
-	bool RequireHttpsMetadata = true)
+public record KeycloakOptions
 {
-	public KeycloakOptions() : this(null!, null!) { }
+	[Required]
+	public string Authority { get; init; } = string.Empty;
+
+	[Required]
+	public string Realm { get; init; } = string.Empty;
+
+	public bool RequireHttpsMetadata { get; init; } = true;
 
 	public string AuthorityUrl => $"{Authority}/realms/{Realm}";
 
