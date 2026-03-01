@@ -1,0 +1,58 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup Label="Aspire Hosting">
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.1.2" />
+    <PackageVersion Include="Aspire.Hosting.Docker" Version="13.1.2-preview.1.26125.13" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.1.2" />
+    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.1.2-preview.1.26125.13" />
+    <PackageVersion Include="Aspire.Hosting.OpenAI" Version="13.1.2" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.1.2" />
+    <PackageVersion Include="Aspire.Hosting.Yarp" Version="13.1.2" />
+  </ItemGroup>
+  <ItemGroup Label="Aspire Client">
+    <PackageVersion Include="Aspire.Keycloak.Authentication" Version="13.1.2-preview.1.26125.13" />
+    <PackageVersion Include="Aspire.Npgsql" Version="13.1.2" />
+    <PackageVersion Include="Aspire.OpenAI" Version="13.1.2-preview.1.26125.13" />
+  </ItemGroup>
+  <ItemGroup Label="Entity Framework">
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="11.0.0-preview.1.26104.118" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="11.0.0-preview.1.26104.118" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="11.0.0-preview.1" />
+  </ItemGroup>
+  <ItemGroup Label="ASP.NET Core">
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0-preview.1.26104.118" />
+  </ItemGroup>
+  <ItemGroup Label="Microsoft Extensions">
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.3.0" />
+  </ItemGroup>
+  <ItemGroup Label="Validation">
+    <PackageVersion Include="FluentValidation" Version="12.1.1" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+  </ItemGroup>
+  <ItemGroup Label="Observability">
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />
+    <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageVersion Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.1-nblumhardt-02317" />
+  </ItemGroup>
+  <ItemGroup Label="API Documentation">
+    <PackageVersion Include="Scalar.Aspire" Version="0.8.59" />
+  </ItemGroup>
+  <ItemGroup Label="Third-Party">
+    <PackageVersion Include="AngleSharp" Version="1.4.1-beta.506" />
+    <PackageVersion Include="Google.Apis.Calendar.v3" Version="1.73.0.4063" />
+    <PackageVersion Include="PdfPig" Version="0.1.14-alpha-20260223-a4047" />
+    <PackageVersion Include="YamlDotNet" Version="16.3.0" />
+  </ItemGroup>
+</Project>
