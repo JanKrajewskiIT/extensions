@@ -43,8 +43,8 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Extensions.Application" />
-    <PackageReference Include="Extensions.Domain" />
+    <ProjectReference Include="..\Extensions.Application\Extensions.Application.csproj" />
+    <ProjectReference Include="..\Extensions.Domain\Extensions.Domain.csproj" />
   </ItemGroup>
 
 </Project>
