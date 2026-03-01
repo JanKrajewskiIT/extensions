@@ -1,6 +1,6 @@
 ---
 name: backend-database
-description: Entity design, EF Core configuration, audit interceptor, user-scoping, PostgreSQL setup, data seeding, migrations, and NuGet package management
+description: Entity design, EF Core configuration, audit interceptor, user-scoping, PostgreSQL setup, data seeding, and migrations
 ---
 
 ## Entity Hierarchy
@@ -62,12 +62,6 @@ Every handler operating on user data MUST filter by `CreatedBy == userId` to pre
 - Seed data in `RunModuleAsync`'s `beforeRun` callback
 - Questions module seeds 600+ questions from `Data/interview-questions.yaml` with deterministic GUIDs
 - Categories use hierarchical parent-child structure, also seeded from YAML
-
-## Central Package Management
-
-NuGet versions are centralized in `Directory.Packages.props`. Shared build properties (TargetFramework, Nullable, etc.) live in `Directory.Build.props`. When adding a new NuGet package:
-- Add `<PackageVersion Include="..." Version="..." />` to `Directory.Packages.props`
-- In the `.csproj`, use `<PackageReference Include="..." />` **without** `Version`
 
 ## Key Files
 
