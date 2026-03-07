@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Extensions.Application</PackageId>
-    <Version>1.0.6</Version>
+    <Version>1.0.7</Version>
     <Authors>JanKrajewskiIT</Authors>
     <Company>Extensions</Company>
     <PackageDescription>CQRS command and query marker interfaces and handler contracts.</PackageDescription>
