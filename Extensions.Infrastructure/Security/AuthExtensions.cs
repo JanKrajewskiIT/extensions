@@ -18,7 +18,9 @@ public static class AuthExtensions
 	{
 		public const string RequireAdmin = nameof(RequireAdmin);
 		public const string RequireModerator = nameof(RequireModerator);
+		public const string RequireUser = nameof(RequireUser);
 		public const string RequireAdminOrModerator = nameof(RequireAdminOrModerator);
+		public const string RequireAnyRole = nameof(RequireAnyRole);
 	}
 
 	internal static IServiceCollection AddAuth(
@@ -65,8 +67,12 @@ public static class AuthExtensions
 				policy.RequireRole(Roles.Admin))
 			.AddPolicy(Policies.RequireModerator, policy =>
 				policy.RequireRole(Roles.Moderator))
+			.AddPolicy(Policies.RequireUser, policy =>
+				policy.RequireRole(Roles.User))
 			.AddPolicy(Policies.RequireAdminOrModerator, policy =>
-				policy.RequireRole(Roles.Admin, Roles.Moderator));
+				policy.RequireRole(Roles.Admin, Roles.Moderator))
+			.AddPolicy(Policies.RequireAnyRole, policy =>
+				policy.RequireRole(Roles.Admin, Roles.Moderator, Roles.User));
 
 		return services;
 	}
