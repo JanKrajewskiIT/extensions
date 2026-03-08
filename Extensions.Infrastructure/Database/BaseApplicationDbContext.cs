@@ -18,7 +18,7 @@ public abstract class BaseApplicationDbContext : DbContext
 	/// <summary>
 	/// Used exclusively in HasQueryFilter expressions — never expose to derived classes.
 	/// </summary>
-	private Guid CurrentUserId => _currentUserService.UserId ?? Guid.Empty;
+	private Guid CurrentUserId => _currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user is required for scoped queries.");
 
 	protected BaseApplicationDbContext(
 		DbContextOptions options,

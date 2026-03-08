@@ -67,7 +67,7 @@ public static class ConfigurationExtensions
 		builder.Services.AddHttpContextAccessor();
 		builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-		builder.Services.AddAllCors(builder.Configuration);
+		builder.Services.AddAllCors(builder.Configuration, builder.Environment);
 		builder.Services.AddAppRateLimiting(builder.Configuration);
 		builder.Services.AddAuth(keycloakSection);
 
