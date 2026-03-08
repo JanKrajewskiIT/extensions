@@ -48,6 +48,8 @@ public abstract class BaseApplicationDbContext : DbContext
 		var currentUserIdProperty = typeof(BaseApplicationDbContext)
 			.GetProperty(nameof(CurrentUserId), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
+		var thisAsBase = Expression.Convert(Expression.Constant(this), typeof(BaseApplicationDbContext));
+
 		foreach (var entityType in modelBuilder.Model.GetEntityTypes())
 		{
 			if (!entityType.ClrType.IsAssignableTo(typeof(AuditEntity)))
@@ -55,7 +57,7 @@ public abstract class BaseApplicationDbContext : DbContext
 
 			var parameter = Expression.Parameter(entityType.ClrType, "e");
 			var createdBy = Expression.Property(parameter, nameof(AuditEntity.CreatedBy));
-			var currentUserId = Expression.Property(Expression.Constant(this), currentUserIdProperty);
+			var currentUserId = Expression.Property(thisAsBase, currentUserIdProperty);
 			var equals = Expression.Equal(createdBy, currentUserId);
 			var lambda = Expression.Lambda(equals, parameter);
 
