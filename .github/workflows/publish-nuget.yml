@@ -7,6 +7,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -21,9 +24,7 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '11.0.x'
-        source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
       env:
-        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         DOTNET_INSTALL_DIR: ./dotnet
 
     - name: Restore dependencies
@@ -39,4 +40,4 @@ jobs:
         dotnet pack Extensions.Infrastructure/Extensions.Infrastructure.csproj --configuration Release --no-build --output nupkgs
 
     - name: Publish to GitHub Packages
-      run: dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
+      run: dotnet nuget push "nupkgs/*.nupkg" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate --api-key ${{ env.GITHUB_TOKEN }}

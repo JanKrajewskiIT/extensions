@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 using Extensions.Domain.Abstractions;
 using Extensions.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -44,15 +45,18 @@ public abstract class BaseApplicationDbContext : DbContext
 
 	private void ApplyUserScopingFilters(ModelBuilder modelBuilder)
 	{
+		var currentUserIdProperty = typeof(BaseApplicationDbContext)
+			.GetProperty(nameof(CurrentUserId), BindingFlags.NonPublic | BindingFlags.Instance)!;
+
 		foreach (var entityType in modelBuilder.Model.GetEntityTypes())
 		{
 			if (!entityType.ClrType.IsAssignableTo(typeof(AuditEntity)))
 				continue;
 
 			var parameter = Expression.Parameter(entityType.ClrType, "e");
-			var createdByProperty = Expression.Property(parameter, nameof(AuditEntity.CreatedBy));
-			var currentUserIdProperty = Expression.Property(Expression.Constant(this), nameof(CurrentUserId));
-			var equals = Expression.Equal(createdByProperty, currentUserIdProperty);
+			var createdBy = Expression.Property(parameter, nameof(AuditEntity.CreatedBy));
+			var currentUserId = Expression.Property(Expression.Constant(this), currentUserIdProperty);
+			var equals = Expression.Equal(createdBy, currentUserId);
 			var lambda = Expression.Lambda(equals, parameter);
 
 			entityType.SetQueryFilter(lambda);
