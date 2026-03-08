@@ -41,7 +41,7 @@
 
 	<ItemGroup Label="Aspire">
 		<PackageReference Include="Aspire.Npgsql" Version="13.1.2" />
-		<PackageReference Include="Aspire.OpenAI" />
+		<PackageReference Include="Aspire.OpenAI" Version="13.1.2-preview.1.26125.13" />
 	</ItemGroup>
 
   <ItemGroup>
