@@ -57,6 +57,12 @@ public static class ConfigurationExtensions
 			http.AddServiceDiscovery();
 		});
 
+		var chatConnectionString = builder.Configuration.GetConnectionString("chat");
+		if (!string.IsNullOrWhiteSpace(chatConnectionString))
+		{
+			builder.AddOpenAIClient("chat").AddChatClient();
+		}
+
 		builder.Services.AddHttpContextAccessor();
 		builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
