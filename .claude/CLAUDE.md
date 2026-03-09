@@ -1,50 +1,36 @@
-# CLAUDE.md — Extensions
+# Extensions
 
-Shared .NET 11 library packages used across Recron microservices:
+Shared .NET 11 library packages for Recron microservices:
 
-- `Extensions.Application` — CQRS abstractions (ICommand, IQuery, handlers), zero dependencies
-- `Extensions.Domain` — Entities, value objects, domain exceptions, user service abstraction
-- `Extensions.Infrastructure` — Database, auth, caching, observability, validation, cross-cutting concerns
+- `Extensions.Application` -- CQRS abstractions (ICommand, IQuery, handlers), zero dependencies
+- `Extensions.Domain` -- Entities, domain exceptions, user service abstraction
+- `Extensions.Infrastructure` -- Database, auth, caching, observability, validation, cross-cutting
 
-Dependency flow: API Projects → Extensions.Infrastructure → Extensions.Domain → Extensions.Application
+Dependency flow: API Projects -> Infrastructure -> Domain -> Application
 
-## Skills
-
-Detailed conventions are available as on-demand skills. Load them when working on a specific area:
-
-| Skill | When to use |
-|---|---|
-| `/backend-feature` | Creating/modifying backend features (vertical slices, CQRS, endpoints, error handling) |
-| `/backend-database` | Entity design, EF Core config, audit fields, user-scoping |
-| `/nuget-package` | Adding new public APIs, versioning packages, publishing to GitHub Packages |
-
-## Build & Run Commands
+## Commands
 
 ```bash
+dotnet build --configuration Release  # build all (pre-commit check)
 dotnet restore                        # restore NuGet packages
-dotnet build --configuration Release  # build all projects
-dotnet test                           # run all tests (none exist yet)
+dotnet test                           # run tests
 ```
 
-### Pre-commit Checklist
+## Git
 
-Always run before committing: `dotnet build --configuration Release`
+Branch from `main`, conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`
+Published to GitHub Packages via GitHub Actions on push to `main`.
 
-### Git Conventions
-
-- Branch from `main`, use conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`
-
-## Project Structure
+## Structure
 
 ```
-Extensions.Application/      # CQRS abstractions (ICommand, IQuery, handlers) — zero deps
-Extensions.Domain/           # Entities, value objects, domain exceptions
-Extensions.Infrastructure/   # Database, auth, caching, observability, cross-cutting
+Extensions.Application/      # CQRS abstractions -- zero external deps
+Extensions.Domain/           # Base entities, domain exceptions, abstractions
+Extensions.Infrastructure/   # DI, EF Core, auth, caching, observability, validation
 ```
 
-## Security & Comments
+## Code Style
 
-- Never hardcode secrets — use environment variables.
-- Code should be self-documenting — comment WHY, not WHAT. No commented-out code.
-- Frontend: no comments at all — code must be self-documenting.
-- XML doc comments for public APIs (backend).
+- XML doc comments on all public APIs
+- Self-documenting code -- comment WHY not WHAT, no commented-out code
+- No hardcoded secrets

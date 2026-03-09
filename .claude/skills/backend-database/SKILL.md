@@ -1,75 +1,40 @@
 ---
-description: Entity design, EF Core configuration, audit interceptor, user-scoping, PostgreSQL setup, data seeding, and migrations
+name: backend-database
+description: Entity design, EF Core configuration, audit interceptor, user-scoping, PostgreSQL setup, migrations, and data seeding. Use when working with database entities or EF Core infrastructure.
 ---
 
 ## Entity Hierarchy
 
-- `BaseEntity` — abstract, provides `Guid Id` with `init` setter
-- `AuditEntity : BaseEntity` — adds `CreatedBy`, `CreatedOn`, `ModifiedBy`, `ModifiedOn` (all `set`)
-- Audit fields are auto-set by `AuditInterceptor` — never set manually in handlers
+`BaseEntity` (abstract, `Guid Id` init) -> `AuditEntity` (adds `CreatedBy`, `CreatedOn`, `ModifiedBy`, `ModifiedOn`). Audit fields auto-set by `AuditInterceptor`.
 
-## Entity Property Conventions
+## Property Conventions
 
-- Use `required` for mandatory, `init` for immutable, `set` for mutable properties
-- Collections: initialize as `= []`
+`required` mandatory, `init` immutable, `set` mutable. Collections: `= []`.
 
 ## Entity Configuration
 
-Configure entities in `IEntityTypeConfiguration<T>` classes using extension methods:
+`IEntityTypeConfiguration<T>` with:
+- `.ToBasicTable("Name")` -- table + Guid PK
+- `.ToAuditTable("Name")` -- + audit columns + `CURRENT_TIMESTAMP` defaults
 
-- `.ToBasicTable("Name")` — sets table name + Guid PK for `BaseEntity`
-- `.ToAuditTable("Name")` — extends `ToBasicTable` + configures audit columns with `CURRENT_TIMESTAMP` defaults for `AuditEntity`
-- Located in `Extensions.Infrastructure/Database/Entities/EntityConfigurationExtensions.cs`
-
-## Data Type Constants
-
-Use constants from `Extensions.Infrastructure/Database/Entities/`:
-
-- `DataTypeConsts.NameLength` = 100 — for name/title columns
-- `DataTypeConsts.TextLength` = 5000 — for description/text columns
-- `PostgresCommandConsts.CurrentTimeStamp` = `"CURRENT_TIMESTAMP"` — for default SQL values
-- `PostgresCommandConsts.JsonDataType` = `"jsonb"` — for JSON columns
+Constants: `DataTypeConsts.NameLength` 100, `.TextLength` 5000, `PostgresCommandConsts.CurrentTimeStamp`, `.JsonDataType` "jsonb".
 
 ## Database Setup
 
-`AddPostgresDbContext<TContext>()` in `Extensions.Infrastructure/Database/DatabaseExtensions.cs` — registers DbContext with Npgsql, retry on failure (3 retries), and `AuditInterceptor`. Enum types used as PostgreSQL enums must be registered in Npgsql options by the consuming service.
+`AddPostgresDbContext<TContext>()` -- Npgsql (3 retries) + AuditInterceptor. Register PostgreSQL enums in Npgsql options.
 
 ## Migrations
 
-- `MigrationExtensions.MigrateDatabase<TContext>()` — checks for pending migrations, applies them, reloads Npgsql types
-- Called in `RunModuleAsync`'s `beforeRun` callback
-- Commands: `dotnet ef migrations add <Name>` and `dotnet ef database update` (run from service directory)
+`MigrationExtensions.MigrateDatabase<TContext>()` in `beforeRun`. Commands: `dotnet ef migrations add <Name>` / `dotnet ef database update`.
 
-## Read-Only Queries
+## Queries & User Identity
 
-- Always `.AsNoTracking()` for read-only queries
-- Project with `.Select()` — never return full entities from queries
-
-## User Identity in Handlers
-
-- `ICurrentUserService` (NOT `ICurrentUserContext`) — provides `UserId`, `UserName`, `Roles`, `IsInRole()`, `Claims`
-- Implementation: `CurrentUserService` extracts claims from `HttpContext.User`
-- Queries: `var userId = userService.UserId ?? Guid.Empty;`
-- Commands: `var userId = userService.UserId ?? throw new UnauthorizedAccessException();`
-
-## User-Scoping (IDOR Prevention)
-
-Every handler operating on user data MUST filter by `CreatedBy == userId` to prevent IDOR. For related entities (e.g., Interview -> Offer), filter through the parent's `CreatedBy`.
-
-## Data Seeding
-
-- Seed data in `RunModuleAsync`'s `beforeRun` callback
-- Use deterministic GUIDs (generated from a stable seed string, not `Guid.NewGuid()`) to make seeding idempotent
+Always `AsNoTracking()` + `Select()`. `ICurrentUserService`: `UserId`, `UserName`, `Roles`, `IsInRole()`.
+IDOR: filter `CreatedBy == userId`. Deterministic GUID seeding for idempotent seeds.
 
 ## Key Files
 
-- `Extensions.Domain/Entities/BaseEntity.cs` — `Guid Id` base entity
-- `Extensions.Domain/Entities/AuditEntity.cs` — audit trail entity
-- `Extensions.Domain/Abstractions/ICurrentUserService.cs` — current user abstraction
-- `Extensions.Domain/Abstractions/Roles.cs` — `Admin`, `Moderator` role constants
-- `Extensions.Infrastructure/Database/DatabaseExtensions.cs` — `AddPostgresDbContext<T>()` registration
-- `Extensions.Infrastructure/Database/MigrationExtensions.cs` — `MigrateDatabase<T>()` helper
-- `Extensions.Infrastructure/Database/Interceptors/AuditInterceptor.cs` — auto audit fields
-- `Extensions.Infrastructure/Database/Entities/EntityConfigurationExtensions.cs` — `.ToBasicTable()`, `.ToAuditTable()`
-- `Extensions.Infrastructure/Database/Entities/DataTypeConsts.cs` — string length constants
-- `Extensions.Infrastructure/Database/Entities/PostgresCommandConsts.cs` — SQL constants
+- `Extensions.Domain/Entities/` -- BaseEntity, AuditEntity
+- `Extensions.Domain/Abstractions/` -- ICurrentUserService, Roles
+- `Extensions.Infrastructure/Database/` -- DatabaseExtensions, MigrationExtensions, AuditInterceptor
+- `Extensions.Infrastructure/Database/Entities/` -- EntityConfigurationExtensions, DataTypeConsts, PostgresCommandConsts
