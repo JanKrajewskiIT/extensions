@@ -1,5 +1,4 @@
 ---
-name: backend-feature
 description: Vertical Slice structure, CQRS commands/queries, endpoint conventions, validation, error handling, service bootstrapping, and anti-patterns for .NET backend features
 ---
 
@@ -79,6 +78,14 @@ await ConfigurationExtensions.RunModuleAsync(
 - NEVER use `ICurrentUserContext` — use `ICurrentUserService`
 - NEVER manually register handlers or validators — assembly scanning does it
 
+## AI Response Helper
+
+For handlers that call an LLM and need to parse structured JSON from the response, use `AiResponseHelper` from `Extensions.Infrastructure/Ai/`:
+
+- `AiResponseHelper.CleanJsonResponse(string)` — strips ` ```json ``` ` markdown fences from AI output
+- `AiResponseHelper.DeserializeResponse<T>(string?)` — cleans + deserializes (case-insensitive), throws `InvalidOperationException` on empty/null or parse failure
+- `GlobalExceptionHandler` maps `InvalidOperationException` → HTTP 409
+
 ## Key Files
 
 - `Extensions.Application/Abstractions/` — ICommand, IQuery, handler interfaces
@@ -86,3 +93,4 @@ await ConfigurationExtensions.RunModuleAsync(
 - `Extensions.Infrastructure/Handlers/` — GlobalExceptionHandler, ValidationExceptionHandler
 - `Extensions.Infrastructure/Validation/ValidationFilter.cs` — `ValidationFilter<T>` + `.WithValidation<T>()` extension
 - `Extensions.Infrastructure/HandlerRegistrationExtensions.cs` — assembly scanning for CQRS handlers + FluentValidation
+- `Extensions.Infrastructure/Ai/AiResponseHelper.cs` — JSON response parsing for LLM calls

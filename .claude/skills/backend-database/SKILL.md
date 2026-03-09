@@ -1,5 +1,4 @@
 ---
-name: backend-database
 description: Entity design, EF Core configuration, audit interceptor, user-scoping, PostgreSQL setup, data seeding, and migrations
 ---
 
@@ -33,7 +32,7 @@ Use constants from `Extensions.Infrastructure/Database/Entities/`:
 
 ## Database Setup
 
-`AddPostgresDbContext<TContext>()` in `Extensions.Infrastructure/Database/DatabaseExtensions.cs` — registers DbContext with Npgsql, retry on failure (3 retries), and `AuditInterceptor`.
+`AddPostgresDbContext<TContext>()` in `Extensions.Infrastructure/Database/DatabaseExtensions.cs` — registers DbContext with Npgsql, retry on failure (3 retries), and `AuditInterceptor`. Enum types used as PostgreSQL enums must be registered in Npgsql options by the consuming service.
 
 ## Migrations
 
@@ -60,8 +59,7 @@ Every handler operating on user data MUST filter by `CreatedBy == userId` to pre
 ## Data Seeding
 
 - Seed data in `RunModuleAsync`'s `beforeRun` callback
-- Questions module seeds 600+ questions from `Data/interview-questions.yaml` with deterministic GUIDs
-- Categories use hierarchical parent-child structure, also seeded from YAML
+- Use deterministic GUIDs (generated from a stable seed string, not `Guid.NewGuid()`) to make seeding idempotent
 
 ## Key Files
 

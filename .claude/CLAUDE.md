@@ -1,4 +1,4 @@
-# AGENTS.md — Extensions
+# CLAUDE.md — Extensions
 
 Shared .NET 11 library packages used across Recron microservices:
 
@@ -8,14 +8,15 @@ Shared .NET 11 library packages used across Recron microservices:
 
 Dependency flow: API Projects → Extensions.Infrastructure → Extensions.Domain → Extensions.Application
 
-## Skills Reference
+## Skills
 
 Detailed conventions are available as on-demand skills. Load them when working on a specific area:
 
-| Skill | When to load |
+| Skill | When to use |
 |---|---|
-| `backend-feature` | Creating/modifying backend features (vertical slices, CQRS, endpoints, error handling) |
-| `backend-database` | Entity design, EF Core config, audit fields, user-scoping |
+| `/backend-feature` | Creating/modifying backend features (vertical slices, CQRS, endpoints, error handling) |
+| `/backend-database` | Entity design, EF Core config, audit fields, user-scoping |
+| `/nuget-package` | Adding new public APIs, versioning packages, publishing to GitHub Packages |
 
 ## Build & Run Commands
 
@@ -40,8 +41,6 @@ Extensions.Application/      # CQRS abstractions (ICommand, IQuery, handlers) �
 Extensions.Domain/           # Entities, value objects, domain exceptions
 Extensions.Infrastructure/   # Database, auth, caching, observability, cross-cutting
 ```
-
-Dependency flow: API Projects -> Extensions.Infrastructure -> Extensions.Domain -> Extensions.Application
 
 ## Security & Comments
 
