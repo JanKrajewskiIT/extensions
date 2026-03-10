@@ -11,6 +11,7 @@ namespace Extensions.Infrastructure.Database.Interceptors;
 /// </summary>
 public sealed class AuditInterceptor(ICurrentUserService currentUserService) : SaveChangesInterceptor
 {
+	/// <inheritdoc />
 	public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
 		DbContextEventData eventData,
 		InterceptionResult<int> result,
@@ -24,6 +25,7 @@ public sealed class AuditInterceptor(ICurrentUserService currentUserService) : S
 		return base.SavingChangesAsync(eventData, result, cancellationToken);
 	}
 
+	/// <inheritdoc />
 	public override InterceptionResult<int> SavingChanges(
 		DbContextEventData eventData,
 		InterceptionResult<int> result)

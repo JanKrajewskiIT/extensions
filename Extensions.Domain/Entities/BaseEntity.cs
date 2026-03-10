@@ -5,5 +5,6 @@ namespace Extensions.Domain.Entities;
 /// </summary>
 public abstract class BaseEntity
 {
+	/// <summary>Gets the unique identifier for this entity.</summary>
 	public Guid Id { get; init; }
 }

@@ -15,6 +15,7 @@ public sealed class KeycloakClaimsTransformation(ILogger<KeycloakClaimsTransform
 	private const string ResourceAccessClaim = "resource_access";
 	private const string TransformedMarker = "keycloak_roles_transformed";
 
+	/// <inheritdoc />
 	public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
 	{
 		var identity = principal.Identity as ClaimsIdentity;

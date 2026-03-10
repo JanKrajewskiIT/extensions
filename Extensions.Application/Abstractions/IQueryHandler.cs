@@ -7,5 +7,6 @@ namespace Extensions.Application.Abstractions;
 /// <typeparam name="TResponse">The type of response</typeparam>
 public interface IQueryHandler<in TQuery, TResponse> where TQuery : IQuery<TResponse>
 {
+	/// <summary>Handles the specified <paramref name="query"/> and returns a result.</summary>
 	Task<TResponse> ExecuteAsync(TQuery query, CancellationToken cancellationToken = default);
 }

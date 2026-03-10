@@ -20,34 +20,18 @@ internal static class RateLimitingExtensions
 	internal static IServiceCollection AddAppRateLimiting(this IServiceCollection services, IConfiguration configuration)
 	{
 		var section = configuration.GetSection(SectionName);
-		var globalOptions = section.Get<AppRateLimitOptions>() ?? new AppRateLimitOptions();
-		var aiOptions = section.GetSection("Ai").Get<AiRateLimitOptions>() ?? new AiRateLimitOptions();
+		var globalOptions = section.Get<RateLimitOptions>() ?? new RateLimitOptions();
+		var aiOptions = section.GetSection("Ai").Get<RateLimitOptions>() ?? new RateLimitOptions(PermitLimit: 10);
 
 		services.AddRateLimiter(limiterOptions =>
 		{
 			limiterOptions.RejectionStatusCode = 429;
 
 			limiterOptions.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-				RateLimitPartition.GetFixedWindowLimiter(
-					partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-					factory: _ => new FixedWindowRateLimiterOptions
-					{
-						PermitLimit = globalOptions.PermitLimit,
-						Window = TimeSpan.FromSeconds(globalOptions.WindowSeconds),
-						QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-						QueueLimit = 0
-					}));
+				CreateFixedWindowPartition(context, globalOptions));
 
 			limiterOptions.AddPolicy(RateLimitPolicies.Ai, context =>
-				RateLimitPartition.GetFixedWindowLimiter(
-					partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-					factory: _ => new FixedWindowRateLimiterOptions
-					{
-						PermitLimit = aiOptions.PermitLimit,
-						Window = TimeSpan.FromSeconds(aiOptions.WindowSeconds),
-						QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-						QueueLimit = 0
-					}));
+				CreateFixedWindowPartition(context, aiOptions));
 
 			limiterOptions.OnRejected = async (context, cancellationToken) =>
 			{
@@ -70,22 +54,17 @@ internal static class RateLimitingExtensions
 		app.UseRateLimiter();
 		return app;
 	}
+
+	private static RateLimitPartition<string> CreateFixedWindowPartition(HttpContext context, RateLimitOptions options) =>
+		RateLimitPartition.GetFixedWindowLimiter(
+			partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+			factory: _ => new FixedWindowRateLimiterOptions
+			{
+				PermitLimit = options.PermitLimit,
+				Window = TimeSpan.FromSeconds(options.WindowSeconds),
+				QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+				QueueLimit = 0
+			});
 }
 
-internal sealed class AppRateLimitOptions
-{
-	/// <summary>Number of requests allowed per window. Defaults to 100.</summary>
-	public int PermitLimit { get; init; } = 100;
-
-	/// <summary>Length of the fixed window in seconds. Defaults to 60.</summary>
-	public int WindowSeconds { get; init; } = 60;
-}
-
-internal sealed class AiRateLimitOptions
-{
-	/// <summary>Number of AI requests allowed per window. Defaults to 10.</summary>
-	public int PermitLimit { get; init; } = 10;
-
-	/// <summary>Length of the fixed window in seconds. Defaults to 60.</summary>
-	public int WindowSeconds { get; init; } = 60;
-}
+internal sealed record RateLimitOptions(int PermitLimit = 100, int WindowSeconds = 60);

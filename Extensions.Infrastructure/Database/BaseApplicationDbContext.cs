@@ -20,6 +20,7 @@ public abstract class BaseApplicationDbContext : DbContext
 	/// </summary>
 	private Guid CurrentUserId => _currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user is required for scoped queries.");
 
+	/// <summary>Initializes the context with the given <paramref name="options"/> and <paramref name="currentUserService"/> for user-scoping.</summary>
 	protected BaseApplicationDbContext(
 		DbContextOptions options,
 		ICurrentUserService currentUserService) : base(options)
@@ -27,6 +28,7 @@ public abstract class BaseApplicationDbContext : DbContext
 		_currentUserService = currentUserService;
 	}
 
+	/// <inheritdoc />
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);

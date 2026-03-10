@@ -10,6 +10,9 @@ internal static class CorsExtensions
 {
 	private const string AllCors = "allCors";
 
+	private static readonly string[] ExposedHeaders =
+		["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"];
+
 	internal static IServiceCollection AddAllCors(
 		this IServiceCollection services,
 		IConfiguration configuration,
@@ -37,20 +40,17 @@ internal static class CorsExtensions
 		{
 			options.AddPolicy(AllCors, policy =>
 			{
+				policy.AllowAnyHeader()
+					.AllowAnyMethod()
+					.WithExposedHeaders(ExposedHeaders);
+
 				if (allowedOrigins is { Length: > 0 })
 				{
-					policy.WithOrigins(allowedOrigins)
-						.AllowAnyHeader()
-						.AllowAnyMethod()
-						.AllowCredentials()
-						.WithExposedHeaders("X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset");
+					policy.WithOrigins(allowedOrigins).AllowCredentials();
 				}
 				else
 				{
-					policy.AllowAnyOrigin()
-						.AllowAnyHeader()
-						.AllowAnyMethod()
-						.WithExposedHeaders("X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset");
+					policy.AllowAnyOrigin();
 				}
 			});
 		});

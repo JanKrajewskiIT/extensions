@@ -9,6 +9,7 @@ namespace Extensions.Infrastructure.Security;
 /// </summary>
 public sealed class EncryptedStringConverter : ValueConverter<string, string>
 {
+	/// <summary>Initializes the converter with the specified AES-256 <paramref name="key"/>.</summary>
 	public EncryptedStringConverter(byte[] key)
 		: base(
 			plaintext => Encrypt(plaintext, key),

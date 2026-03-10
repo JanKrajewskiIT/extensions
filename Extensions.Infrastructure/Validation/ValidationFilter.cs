@@ -11,6 +11,7 @@ namespace Extensions.Infrastructure.Validation;
 /// </summary>
 public sealed class ValidationFilter<T> : IEndpointFilter where T : class
 {
+	/// <inheritdoc />
 	public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
 	{
 		var validator = context.HttpContext.RequestServices.GetService<IValidator<T>>();

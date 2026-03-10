@@ -127,7 +127,7 @@ public static class ConfigurationExtensions
 		services.ConfigureHttpJsonOptions(options => ApplyJsonSettings(options.SerializerOptions, enumConverter));
 	}
 
-	private static void ApplyJsonSettings(System.Text.Json.JsonSerializerOptions options, JsonStringEnumConverter enumConverter)
+	private static void ApplyJsonSettings(JsonSerializerOptions options, JsonStringEnumConverter enumConverter)
 	{
 		options.Converters.Add(enumConverter);
 		options.AllowTrailingCommas = false;

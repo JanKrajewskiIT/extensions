@@ -1,18 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net11.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Extensions.Application</PackageId>
-    <Version>1.1.1</Version>
-    <Authors>JanKrajewskiIT</Authors>
-    <Company>Extensions</Company>
     <PackageDescription>CQRS command and query marker interfaces and handler contracts.</PackageDescription>
-    <RepositoryUrl>https://github.com/JanKrajewskiIT/extensions</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Deterministic>true</Deterministic>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 </Project>

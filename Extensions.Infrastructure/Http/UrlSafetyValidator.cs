@@ -17,18 +17,46 @@ public static class UrlSafetyValidator
 
 	/// <summary>
 	/// Validates that a URL is safe to fetch (not targeting internal resources).
+	/// Uses asynchronous DNS resolution to avoid blocking the thread pool.
+	/// Throws <see cref="ArgumentException"/> if the URL is invalid or targets an internal host.
+	/// </summary>
+	public static async Task ValidateAsync(string url, CancellationToken cancellationToken = default)
+	{
+		var uri = ValidateSchemeAndHost(url);
+
+		if (IPAddress.TryParse(uri.Host, out var parsedIp))
+		{
+			EnsurePublicAddress(parsedIp, url);
+			return;
+		}
+
+		IPAddress[] resolvedAddresses;
+		try
+		{
+			resolvedAddresses = await Dns.GetHostAddressesAsync(uri.DnsSafeHost, cancellationToken);
+		}
+		catch (SocketException)
+		{
+			throw new ArgumentException("Host cannot be resolved.", nameof(url));
+		}
+
+		if (resolvedAddresses.Length == 0)
+			throw new ArgumentException("Host cannot be resolved.", nameof(url));
+
+		foreach (var resolvedAddress in resolvedAddresses)
+		{
+			EnsurePublicAddress(resolvedAddress, url);
+		}
+	}
+
+	/// <summary>
+	/// Validates that a URL is safe to fetch (not targeting internal resources).
+	/// Prefer <see cref="ValidateAsync"/> in request-handling code to avoid blocking on DNS resolution.
 	/// Throws <see cref="ArgumentException"/> if the URL is invalid or targets an internal host.
 	/// </summary>
 	public static void Validate(string url)
 	{
-		if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
-			throw new ArgumentException("Invalid URL format.", nameof(url));
-
-		if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
-			throw new ArgumentException("Only HTTP and HTTPS URLs are allowed.", nameof(url));
-
-		if (BlockedHosts.Contains(uri.Host))
-			throw new ArgumentException("Access to internal hosts is not allowed.", nameof(url));
+		var uri = ValidateSchemeAndHost(url);
 
 		if (IPAddress.TryParse(uri.Host, out var parsedIp))
 		{
@@ -53,6 +81,20 @@ public static class UrlSafetyValidator
 		{
 			EnsurePublicAddress(resolvedAddress, url);
 		}
+	}
+
+	private static Uri ValidateSchemeAndHost(string url)
+	{
+		if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+			throw new ArgumentException("Invalid URL format.", nameof(url));
+
+		if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+			throw new ArgumentException("Only HTTP and HTTPS URLs are allowed.", nameof(url));
+
+		if (BlockedHosts.Contains(uri.Host))
+			throw new ArgumentException("Access to internal hosts is not allowed.", nameof(url));
+
+		return uri;
 	}
 
 	private static void EnsurePublicAddress(IPAddress ip, string url)

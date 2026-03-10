@@ -1,20 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net11.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Extensions.Infrastructure</PackageId>
-    <Version>1.1.1</Version>
-    <Authors>JanKrajewskiIT</Authors>
-    <Company>Extensions</Company>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     <PackageDescription>Infrastructure wiring for ASP.NET Core apps: auth, database, caching, observability, validation and more.</PackageDescription>
-    <RepositoryUrl>https://github.com/JanKrajewskiIT/extensions</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Deterministic>true</Deterministic>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 
 	<ItemGroup>
