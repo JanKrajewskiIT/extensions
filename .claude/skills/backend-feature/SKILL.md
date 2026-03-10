@@ -1,25 +1,23 @@
 ---
 name: backend-feature
-description: Vertical slice structure, CQRS abstractions, endpoint conventions, validation, error handling, service bootstrapping, and anti-patterns. Use when creating or modifying backend features that use Extensions.
+description: Vertical slice structure, CQRS abstractions, endpoints, validation, error handling, bootstrapping. Use when creating or modifying features that use Extensions.
 ---
 
 ## Vertical Slice Structure
 
-`Features/{Feature}/{Action}/` with: `{Action}Endpoint.cs`, `{Action}Command.cs`/`Query.cs`, `{Action}Handler.cs`, `{Action}Request.cs`/`Response.cs`, `{Action}Validator.cs` (optional). Auto-registered via assembly scanning in `FeaturesExtensions.cs`.
+`Features/{Feature}/{Action}/` with: `{Action}Endpoint.cs`, `Command.cs`/`Query.cs`, `Handler.cs`, `Request.cs`/`Response.cs`, `Validator.cs` (optional). Auto-registered via assembly scanning.
 
-## CQRS Abstractions (`Extensions.Application/Abstractions/`)
+## CQRS (`Extensions.Application/Abstractions/`)
 
-- `ICommand` -- no return | `ICommand<TResponse>` -- with return | `IQuery<TResponse>`
-- `ICommandHandler<TCommand>` -> `Task` | `ICommandHandler<TCommand, TResponse>` -> `Task<TResponse>`
+- `ICommand` / `ICommand<TResponse>` / `IQuery<TResponse>`
+- `ICommandHandler<T>` -> `Task` / `ICommandHandler<T, TResponse>` -> `Task<TResponse>`
 - `IQueryHandler<TQuery, TResponse>` -> `Task<TResponse>`
-
-Commands: `record` + `ICommand`/`ICommand<TResponse>`. Queries: `record` + `IQuery<TResponse>`.
-Handlers: always `sealed`, primary constructors for DI.
+- Commands/Queries: `record` types. Handlers: `sealed`, primary constructors.
 
 ## Endpoints
 
 Extension methods: `Map{Action}(this IEndpointRouteBuilder app)`.
-Validation: manual `IValidator<TRequest>` inject or `.WithValidation<TRequest>()` filter.
+Validation: manual `IValidator<T>` inject or `.WithValidation<T>()` filter.
 
 ## Error Handling
 
@@ -43,5 +41,4 @@ await ConfigurationExtensions.RunModuleAsync(args,
 
 ## Anti-Patterns (NEVER)
 
-- MediatR, repository/unit of work, skip `AsNoTracking()`, manual audit fields
-- `ICurrentUserContext` (use `ICurrentUserService`), manual handler/validator registration
+MediatR, repository/unit of work, skip `AsNoTracking()`, manual audit fields, `ICurrentUserContext`, manual handler/validator registration.

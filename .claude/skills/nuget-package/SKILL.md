@@ -1,6 +1,6 @@
 ---
 name: nuget-package
-description: Adding public APIs, versioning, backward compatibility, XML doc requirements, and publishing to GitHub Packages. Use when extending any Extensions package or preparing a release.
+description: Package responsibilities, versioning, backward compatibility, XML docs, publishing. Use when extending packages or preparing a release.
 ---
 
 ## Package Responsibilities
@@ -8,36 +8,28 @@ description: Adding public APIs, versioning, backward compatibility, XML doc req
 ```
 Extensions.Application    <- zero external deps, pure CQRS abstractions
 Extensions.Domain         <- may reference Application
-Extensions.Infrastructure <- may reference Domain + Application, all third-party deps here
+Extensions.Infrastructure <- may reference Domain + Application, all third-party deps
 ```
 
 ## Belongs in Extensions If
 
 - No Recron-specific business logic, operates on abstractions
 - Same pattern in 2+ services
-- Could be used in any .NET + PostgreSQL + EF Core project
+- Usable in any .NET + PostgreSQL + EF Core project
 
-## XML Doc Comments (required on all public APIs)
+## XML Docs (required)
 
-`<summary>` on every public member. `<typeparam>`, `<param>`, `<returns>`, `<exception cref>` as applicable. No implementation comments.
+`<summary>` on every public member. `<typeparam>`, `<param>`, `<returns>`, `<exception cref>` as applicable.
 
 ## Versioning
 
-All three packages share `1.0.PATCH`. Bump all three `.csproj` together:
-
-```xml
-<Version>1.0.15</Version>  <!-- increment from current -->
-```
-
-Consumers update `Directory.Packages.props`:
-```xml
-<PackageVersion Include="Extensions.Infrastructure" Version="1.0.15" />
-```
+All three packages share `1.0.PATCH`. Bump all three `.csproj` together.
+Consumers update `Directory.Packages.props`.
 
 ## Backward Compatibility
 
-Non-breaking (safe): new interfaces, optional overloads, extension methods, constants.
-Breaking (coordinate): removing/renaming members, changing signatures.
+Non-breaking: new interfaces, optional overloads, extension methods, constants.
+Breaking: removing/renaming members, changing signatures -- coordinate first.
 When in doubt: add overload, don't change existing.
 
 ## Adding Infrastructure Extensions
@@ -48,7 +40,7 @@ public static IServiceCollection AddSomething<T>(this IServiceCollection service
 { /* impl */ return services; }
 ```
 
-Add to `AddServiceDefaults()` only if every microservice needs it. Otherwise leave as opt-in.
+Add to `AddServiceDefaults()` only if every microservice needs it. Otherwise opt-in.
 
 ## Publishing
 
@@ -57,7 +49,7 @@ Pipeline: restore -> build Release -> pack -> push to GitHub Packages (`--skip-d
 
 ## Pre-publish Checklist
 
-- `dotnet build --configuration Release` passes with zero warnings
-- All new public members have XML doc comments
-- Version bumped in all three `.csproj` files
-- Third-party deps only in Extensions.Infrastructure
+- `dotnet build --configuration Release` -- zero warnings
+- All public members have XML docs
+- Version bumped in all three `.csproj`
+- Third-party deps only in Infrastructure

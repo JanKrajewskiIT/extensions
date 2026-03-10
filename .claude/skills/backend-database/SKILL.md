@@ -1,6 +1,6 @@
 ---
 name: backend-database
-description: Entity design, EF Core configuration, audit interceptor, user-scoping, PostgreSQL setup, migrations, and data seeding. Use when working with database entities or EF Core infrastructure.
+description: Entity design, EF Core configuration, audit interceptor, user-scoping, PostgreSQL setup, migrations. Use when working with entities or EF Core.
 ---
 
 ## Entity Hierarchy
@@ -25,7 +25,8 @@ Constants: `DataTypeConsts.NameLength` 100, `.TextLength` 5000, `PostgresCommand
 
 ## Migrations
 
-`MigrationExtensions.MigrateDatabase<TContext>()` in `beforeRun`. Commands: `dotnet ef migrations add <Name>` / `dotnet ef database update`.
+`MigrationExtensions.MigrateDatabase<TContext>()` in `beforeRun`.
+Commands: `dotnet ef migrations add <Name>` / `dotnet ef database update`.
 
 ## Queries & User Identity
 
@@ -37,4 +38,4 @@ IDOR: filter `CreatedBy == userId`. Deterministic GUID seeding for idempotent se
 - `Extensions.Domain/Entities/` -- BaseEntity, AuditEntity
 - `Extensions.Domain/Abstractions/` -- ICurrentUserService, Roles
 - `Extensions.Infrastructure/Database/` -- DatabaseExtensions, MigrationExtensions, AuditInterceptor
-- `Extensions.Infrastructure/Database/Entities/` -- EntityConfigurationExtensions, DataTypeConsts, PostgresCommandConsts
+- `Extensions.Infrastructure/Database/Entities/` -- EntityConfigurationExtensions, DataTypeConsts
