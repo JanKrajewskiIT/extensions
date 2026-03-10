@@ -4,8 +4,15 @@ using Npgsql;
 
 namespace Extensions.Infrastructure.Database;
 
+/// <summary>
+/// Helpers for running EF Core migrations at application startup.
+/// </summary>
 public static class MigrationExtensions
 {
+	/// <summary>
+	/// Applies any pending EF Core migrations for <typeparamref name="TContext"/>.
+	/// After migration, reloads Npgsql type mappings so newly registered enums/composites are available immediately.
+	/// </summary>
 	public static async Task MigrateDatabase<TContext>(this IServiceProvider services, CancellationToken cancellationToken)
 		where TContext : DbContext
 	{

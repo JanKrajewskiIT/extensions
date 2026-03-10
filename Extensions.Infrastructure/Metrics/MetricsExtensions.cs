@@ -10,11 +10,18 @@ using OpenTelemetry.Trace;
 
 namespace Extensions.Infrastructure.Metrics;
 
+/// <summary>
+/// Registration and middleware helpers for OpenTelemetry metrics/tracing and health checks.
+/// </summary>
 public static class MetricsExtensions
 {
 	private const string HealthEndpointPath = "/health";
 	private const string AlivenessEndpointPath = "/alive";
 
+	/// <summary>
+	/// Configures OpenTelemetry (metrics, traces, OTLP export when <c>OTEL_EXPORTER_OTLP_ENDPOINT</c> is set)
+	/// and registers a self health check tagged <c>"live"</c>.
+	/// </summary>
 	public static TBuilder AddApplicationMetrics<TBuilder>(
 		this TBuilder builder) where TBuilder : IHostApplicationBuilder
 	{
@@ -70,6 +77,9 @@ public static class MetricsExtensions
 		return builder;
 	}
 
+	/// <summary>
+	/// Maps <c>/health</c> (all checks) and <c>/alive</c> (liveness checks tagged <c>"live"</c>).
+	/// </summary>
 	public static WebApplication UseDefaultHealthChecks(this WebApplication app)
 	{
 		app.MapHealthChecks(HealthEndpointPath);

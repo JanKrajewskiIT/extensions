@@ -6,6 +6,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Extensions.Infrastructure.Handlers;
 
+/// <summary>
+/// Exception handler for FluentValidation <see cref="FluentValidation.ValidationException"/>.
+/// Returns HTTP 422 with a <see cref="Microsoft.AspNetCore.Mvc.ValidationProblemDetails"/> body
+/// that groups errors by property name.
+/// </summary>
 internal sealed class ValidationExceptionHandler(
 	IProblemDetailsService problemDetailsService,
 	ILogger<ValidationExceptionHandler> logger)

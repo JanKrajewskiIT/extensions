@@ -1,4 +1,3 @@
-
 using Extensions.Domain.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,17 +8,33 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Extensions.Infrastructure.Security;
 
+/// <summary>
+/// Registration and middleware helpers for Keycloak JWT authentication and role-based authorization.
+/// </summary>
 public static class AuthExtensions
 {
 	private const string Audience = "account";
 	private const string Scheme = JwtBearerDefaults.AuthenticationScheme;
 
+	/// <summary>
+	/// Named authorization policy identifiers for use with <c>[Authorize(Policy = ...)]</c>
+	/// or <c>.RequireAuthorization(...)</c>.
+	/// </summary>
 	public static class Policies
 	{
+		/// <summary>Requires the <see cref="Roles.Admin"/> role.</summary>
 		public const string RequireAdmin = nameof(RequireAdmin);
+
+		/// <summary>Requires the <see cref="Roles.Moderator"/> role.</summary>
 		public const string RequireModerator = nameof(RequireModerator);
+
+		/// <summary>Requires the <see cref="Roles.User"/> role.</summary>
 		public const string RequireUser = nameof(RequireUser);
+
+		/// <summary>Requires either the <see cref="Roles.Admin"/> or <see cref="Roles.Moderator"/> role.</summary>
 		public const string RequireAdminOrModerator = nameof(RequireAdminOrModerator);
+
+		/// <summary>Requires any of the known application roles (admin, moderator, or user).</summary>
 		public const string RequireAnyRole = nameof(RequireAnyRole);
 	}
 

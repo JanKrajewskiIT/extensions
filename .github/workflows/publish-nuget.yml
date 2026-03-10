@@ -26,9 +26,12 @@ jobs:
         dotnet-version: '11.0.x'
       env:
         DOTNET_INSTALL_DIR: ./dotnet
+        NUGET_AUTH_TOKEN: ${{ secrets.GHCR_TOKEN }}
 
     - name: Restore dependencies
       run: dotnet restore Extensions.slnx
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GHCR_TOKEN }}
 
     - name: Build
       run: dotnet build Extensions.slnx --configuration Release --no-restore

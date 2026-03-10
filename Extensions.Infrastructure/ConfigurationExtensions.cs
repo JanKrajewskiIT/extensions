@@ -16,8 +16,17 @@ using System.Text.Json.Serialization;
 
 namespace Extensions.Infrastructure;
 
+/// <summary>
+/// Top-level bootstrapping helpers shared by all Recron microservices.
+/// </summary>
 public static class ConfigurationExtensions
 {
+	/// <summary>
+	/// Builds and runs a Recron module: creates the builder, wires common defaults,
+	/// invokes <paramref name="configureServices"/> and <paramref name="configureApp"/>,
+	/// optionally executes <paramref name="beforeRun"/> (e.g. database migrations),
+	/// then starts the host.
+	/// </summary>
 	public static async Task RunModuleAsync(
 		string[] args,
 		Action<WebApplicationBuilder> configureServices,
@@ -44,6 +53,11 @@ public static class ConfigurationExtensions
 		await app.RunAsync();
 	}
 
+	/// <summary>
+	/// Registers all shared infrastructure services: logging, metrics, service discovery,
+	/// HTTP client resilience, OpenAI (when configured), auth, CORS, rate limiting,
+	/// OpenAPI, problem details, hybrid caching, and JSON options.
+	/// </summary>
 	public static WebApplicationBuilder AddServiceDefaults(
 		this WebApplicationBuilder builder,
 		IConfigurationSection keycloakSection)
@@ -85,6 +99,10 @@ public static class ConfigurationExtensions
 		return builder;
 	}
 
+	/// <summary>
+	/// Adds shared middleware: structured logging, health checks, CORS, rate limiting,
+	/// authentication/authorization, OpenAPI, and exception handling.
+	/// </summary>
 	public static IApplicationBuilder UseCommonConfiguration(this WebApplication app)
 	{
 		app.UseStructuredLogging();
@@ -97,7 +115,6 @@ public static class ConfigurationExtensions
 		app.UseOpenApiWithAuth();
 
 		app.UseExceptionHandler();
-		// app.UseHttpsRedirection(); // TODO currently yarp doesn't support https certs
 
 		return app;
 	}

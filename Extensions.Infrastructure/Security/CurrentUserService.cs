@@ -4,6 +4,10 @@ using System.Security.Claims;
 
 namespace Extensions.Infrastructure.Security;
 
+/// <summary>
+/// HTTP-context-backed implementation of <see cref="ICurrentUserService"/>.
+/// Reads identity and claims from the current request's <see cref="ClaimsPrincipal"/>.
+/// </summary>
 public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
 {
 	public Guid? UserId =>

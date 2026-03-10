@@ -6,8 +6,15 @@ using Microsoft.OpenApi;
 
 namespace Extensions.Infrastructure.OpenApi;
 
+/// <summary>
+/// Registration and middleware helpers for OpenAPI document generation with Keycloak OAuth2 security.
+/// </summary>
 public static class OpenApiExtensions
 {
+	/// <summary>
+	/// Registers OpenAPI document generation and adds a document transformer that injects
+	/// the Keycloak OAuth2 Authorization Code security scheme and applies it to all operations.
+	/// </summary>
 	public static IServiceCollection AddOpenApiWithAuth(
 		this IServiceCollection services,
 		IConfigurationSection keycloakSection)
@@ -55,6 +62,7 @@ public static class OpenApiExtensions
 		});
 	}
 
+	/// <summary>Maps the <c>/openapi/v1.json</c> OpenAPI document endpoint.</summary>
 	public static WebApplication UseOpenApiWithAuth(this WebApplication app)
 	{
 		app.MapOpenApi();

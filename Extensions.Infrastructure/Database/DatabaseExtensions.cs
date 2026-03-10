@@ -7,8 +7,16 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
 namespace Extensions.Infrastructure.Database;
 
+/// <summary>
+/// Registration helpers for PostgreSQL-backed <see cref="DbContext"/> instances.
+/// </summary>
 public static class DatabaseExtensions
 {
+	/// <summary>
+	/// Registers a PostgreSQL data source and <typeparamref name="TContext"/> with the DI container.
+	/// Enables dynamic JSON, retry-on-failure (3 attempts), and wires the <see cref="AuditInterceptor"/>.
+	/// Parameter logging is enabled automatically in Development.
+	/// </summary>
 	public static IHostApplicationBuilder AddPostgresDbContext<TContext>(
 		this IHostApplicationBuilder builder,
 		string connectionName,

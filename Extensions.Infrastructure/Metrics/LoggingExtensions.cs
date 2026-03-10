@@ -4,8 +4,17 @@ using Serilog.Events;
 
 namespace Extensions.Infrastructure.Metrics;
 
+/// <summary>
+/// Registration and middleware helpers for structured logging via Serilog.
+/// </summary>
 public static class LoggingExtensions
 {
+	/// <summary>
+	/// Configures Serilog as the host logger: enriches with context, machine name, thread ID,
+	/// environment name, and application name; writes to console and OpenTelemetry (OTLP).
+	/// Log levels for <c>Microsoft</c>, <c>Microsoft.EntityFrameworkCore</c>, and <c>System</c>
+	/// are overridden to <see cref="LogEventLevel.Warning"/> to reduce noise.
+	/// </summary>
 	public static WebApplicationBuilder AddStructuredLogging(this WebApplicationBuilder builder)
 	{
 		builder.Host.UseSerilog((context, _, loggerConfig) =>
@@ -36,6 +45,10 @@ public static class LoggingExtensions
 		return builder;
 	}
 
+	/// <summary>
+	/// Adds Serilog request logging middleware that emits one log entry per HTTP request,
+	/// enriched with host, scheme, user agent, client IP, and (when authenticated) user name.
+	/// </summary>
 	public static WebApplication UseStructuredLogging(this WebApplication app)
 	{
 		app.UseSerilogRequestLogging(options =>
@@ -58,4 +71,3 @@ public static class LoggingExtensions
 		return app;
 	}
 }
-

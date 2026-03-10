@@ -9,6 +9,11 @@ using System.Net;
 
 namespace Extensions.Infrastructure.Handlers;
 
+/// <summary>
+/// Catch-all exception handler that maps well-known exception types to appropriate HTTP status codes
+/// and returns RFC 7807 problem details. Stack trace is included only in Development.
+/// Defers to <see cref="ValidationExceptionHandler"/> for <see cref="FluentValidation.ValidationException"/>.
+/// </summary>
 internal sealed class GlobalExceptionHandler(
 	IHostEnvironment env,
 	IProblemDetailsService problemDetailsService,

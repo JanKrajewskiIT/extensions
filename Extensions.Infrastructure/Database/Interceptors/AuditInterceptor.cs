@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Extensions.Infrastructure.Database.Interceptors;
 
+/// <summary>
+/// EF Core interceptor that automatically stamps audit fields on <see cref="AuditEntity"/> instances
+/// during every save operation. Never set audit fields manually — this interceptor handles them.
+/// </summary>
 public sealed class AuditInterceptor(ICurrentUserService currentUserService) : SaveChangesInterceptor
 {
-	private readonly ICurrentUserService _currentUserService = currentUserService;
-
 	public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
 		DbContextEventData eventData,
 		InterceptionResult<int> result,
@@ -36,7 +38,7 @@ public sealed class AuditInterceptor(ICurrentUserService currentUserService) : S
 
 	private void UpdateAuditFields(DbContext context)
 	{
-		var userId = _currentUserService.UserId ?? Guid.Empty;
+		var userId = currentUserService.UserId ?? Guid.Empty;
 
 		var now = DateTimeOffset.UtcNow;
 
