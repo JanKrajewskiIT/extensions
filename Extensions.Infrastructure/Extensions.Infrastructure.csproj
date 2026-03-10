@@ -6,7 +6,7 @@
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Extensions.Infrastructure</PackageId>
-    <Version>1.0.14</Version>
+    <Version>1.1.0</Version>
     <Authors>JanKrajewskiIT</Authors>
     <Company>Extensions</Company>
     <PackageDescription>Infrastructure wiring for ASP.NET Core apps: auth, database, caching, observability, validation and more.</PackageDescription>
@@ -18,7 +18,6 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Aspire.Keycloak.Authentication" Version="13.1.2-preview.1.26125.13" />
 		<PackageReference Include="FluentValidation" Version="12.1.1" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="11.0.0-preview.1" />

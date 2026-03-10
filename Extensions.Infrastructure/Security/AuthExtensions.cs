@@ -37,26 +37,23 @@ public static class AuthExtensions
 
 		services
 			.AddAuthentication(Scheme)
-			.AddKeycloakJwtBearer(
-				serviceName: "keycloak",
-				realm: keycloakOptions.Realm,
-				configureOptions: options =>
+			.AddJwtBearer(Scheme, options =>
+			{
+				options.Authority = keycloakOptions.AuthorityUrl;
+				options.Audience = Audience;
+				options.RequireHttpsMetadata = keycloakOptions.RequireHttpsMetadata;
+				options.TokenValidationParameters = new TokenValidationParameters
 				{
-					options.Authority = keycloakOptions.AuthorityUrl;
-					options.Audience = Audience;
-					options.RequireHttpsMetadata = keycloakOptions.RequireHttpsMetadata;
-					options.TokenValidationParameters = new TokenValidationParameters
-					{
-						ValidateIssuer = true,
-						ValidateAudience = true,
-						ValidateLifetime = true,
-						ValidateIssuerSigningKey = true,
-						ValidIssuer = keycloakOptions.AuthorityUrl,
-						ValidAudience = Audience,
-						ClockSkew = TokenValidationParameters.DefaultClockSkew,
-						RoleClaimType = System.Security.Claims.ClaimTypes.Role,
-					};
-				});
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = keycloakOptions.AuthorityUrl,
+					ValidAudience = Audience,
+					ClockSkew = TokenValidationParameters.DefaultClockSkew,
+					RoleClaimType = System.Security.Claims.ClaimTypes.Role,
+				};
+			});
 
 		// Register claims transformation to map Keycloak roles to standard role claims
 		services.AddTransient<IClaimsTransformation, KeycloakClaimsTransformation>();
