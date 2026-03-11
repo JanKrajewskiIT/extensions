@@ -30,7 +30,6 @@ Commands: `dotnet ef migrations add <Name>` / `dotnet ef database update`.
 
 ## Queries & User Identity
 
-Always `AsNoTracking()` + `Select()`. `ICurrentUserService`: `UserId`, `UserName`, `Roles`, `IsInRole()`.
 IDOR: filter `CreatedBy == userId`. Deterministic GUID seeding for idempotent seeds.
 
 ## Key Files

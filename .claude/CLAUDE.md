@@ -23,5 +23,4 @@ Published via GitHub Actions on push to `main`.
 
 ## Code Style
 
-- XML doc comments on all public APIs
 - Self-documenting -- comment WHY not WHAT, no commented-out code, no hardcoded secrets

@@ -5,11 +5,7 @@ description: Package responsibilities, versioning, backward compatibility, XML d
 
 ## Package Responsibilities
 
-```
-Extensions.Application    <- zero external deps, pure CQRS abstractions
-Extensions.Domain         <- may reference Application
-Extensions.Infrastructure <- may reference Domain + Application, all third-party deps
-```
+`Application` (zero deps) <- `Domain` <- `Infrastructure` (all third-party deps).
 
 ## Belongs in Extensions If
 
@@ -17,7 +13,7 @@ Extensions.Infrastructure <- may reference Domain + Application, all third-party
 - Same pattern in 2+ services
 - Usable in any .NET + PostgreSQL + EF Core project
 
-## XML Docs (required)
+## XML Docs
 
 `<summary>` on every public member. `<typeparam>`, `<param>`, `<returns>`, `<exception cref>` as applicable.
 
@@ -34,12 +30,6 @@ When in doubt: add overload, don't change existing.
 
 ## Adding Infrastructure Extensions
 
-```csharp
-/// <summary>Registers <typeparamref name="T"/> in the DI container.</summary>
-public static IServiceCollection AddSomething<T>(this IServiceCollection services) where T : class
-{ /* impl */ return services; }
-```
-
 Add to `AddServiceDefaults()` only if every microservice needs it. Otherwise opt-in.
 
 ## Publishing
@@ -52,4 +42,3 @@ Pipeline: restore -> build Release -> pack -> push to GitHub Packages (`--skip-d
 - `dotnet build --configuration Release` -- zero warnings
 - All public members have XML docs
 - Version bumped in all three `.csproj`
-- Third-party deps only in Infrastructure
