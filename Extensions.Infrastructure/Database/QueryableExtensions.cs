@@ -18,15 +18,17 @@ public static class QueryableExtensions
 		int pageSize,
 		CancellationToken cancellationToken = default)
 	{
+		var resolvedPage = page > 0 ? page : 1;
+		var resolvedPageSize = pageSize > 0 ? pageSize : 0;
 		var totalCount = await query.CountAsync(cancellationToken);
 
 		List<T> items;
 
-		if (pageSize > 0)
+		if (resolvedPageSize > 0)
 		{
 			items = await query
-				.Skip((page - 1) * pageSize)
-				.Take(pageSize)
+				.Skip((resolvedPage - 1) * resolvedPageSize)
+				.Take(resolvedPageSize)
 				.ToListAsync(cancellationToken);
 		}
 		else
@@ -34,6 +36,6 @@ public static class QueryableExtensions
 			items = await query.ToListAsync(cancellationToken);
 		}
 
-		return new PagedResponse<T>(items, totalCount, page, pageSize);
+		return new PagedResponse<T>(items, totalCount, resolvedPage, resolvedPageSize);
 	}
 }
