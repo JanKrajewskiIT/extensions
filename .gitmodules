@@ -4,3 +4,6 @@
 [submodule ".agents"]
 	path = .agents
 	url = https://github.com/JanKrajewskiIT/claude.git
+[submodule ".claude"]
+	path = .claude
+	url = https://github.com/JanKrajewskiIT/claude.git
