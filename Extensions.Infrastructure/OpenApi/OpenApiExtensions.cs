@@ -13,7 +13,7 @@ public static class OpenApiExtensions
 {
 	/// <summary>
 	/// Registers OpenAPI document generation and adds a document transformer that injects
-	/// the Keycloak OAuth2 Authorization Code security scheme and applies it to all operations.
+	/// Keycloak OAuth2 Authorization Code and Client Credentials flows and applies the scheme to all operations.
 	/// </summary>
 	public static IServiceCollection AddOpenApiWithAuth(
 		this IServiceCollection services,
@@ -37,6 +37,10 @@ public static class OpenApiExtensions
 							AuthorizationCode = new OpenApiOAuthFlow
 							{
 								AuthorizationUrl = keycloakOptions.AuthorizationUrl,
+								TokenUrl = keycloakOptions.TokenUrl
+							},
+							ClientCredentials = new OpenApiOAuthFlow
+							{
 								TokenUrl = keycloakOptions.TokenUrl
 							}
 						}
