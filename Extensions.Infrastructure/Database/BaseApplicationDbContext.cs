@@ -13,57 +13,57 @@ namespace Extensions.Infrastructure.Database;
 /// </summary>
 public abstract class BaseApplicationDbContext : DbContext
 {
-	private readonly ICurrentUserService _currentUserService;
+    private readonly ICurrentUserService _currentUserService;
 
-	/// <summary>
-	/// Used exclusively in HasQueryFilter expressions — never expose to derived classes.
-	/// </summary>
-	private Guid CurrentUserId => _currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user is required for scoped queries.");
+    /// <summary>
+    /// Used exclusively in HasQueryFilter expressions — never expose to derived classes.
+    /// </summary>
+    private Guid CurrentUserId => _currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user is required for scoped queries.");
 
-	/// <summary>Initializes the context with the given <paramref name="options"/> and <paramref name="currentUserService"/> for user-scoping.</summary>
-	protected BaseApplicationDbContext(
-		DbContextOptions options,
-		ICurrentUserService currentUserService) : base(options)
-	{
-		_currentUserService = currentUserService;
-	}
+    /// <summary>Initializes the context with the given <paramref name="options"/> and <paramref name="currentUserService"/> for user-scoping.</summary>
+    protected BaseApplicationDbContext(
+        DbContextOptions options,
+        ICurrentUserService currentUserService) : base(options)
+    {
+        _currentUserService = currentUserService;
+    }
 
-	/// <inheritdoc />
-	protected override void OnModelCreating(ModelBuilder modelBuilder)
-	{
-		base.OnModelCreating(modelBuilder);
+    /// <inheritdoc />
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
 
-		ApplyUserScopingFilters(modelBuilder);
-		modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+        ApplyUserScopingFilters(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
-		ConfigureModel(modelBuilder);
-	}
+        ConfigureModel(modelBuilder);
+    }
 
-	/// <summary>
-	/// Override to add service-specific model configuration (enums, seed data, etc.).
-	/// Called after query filters and entity configurations are applied.
-	/// </summary>
-	protected virtual void ConfigureModel(ModelBuilder modelBuilder) { }
+    /// <summary>
+    /// Override to add service-specific model configuration (enums, seed data, etc.).
+    /// Called after query filters and entity configurations are applied.
+    /// </summary>
+    protected virtual void ConfigureModel(ModelBuilder modelBuilder) { }
 
-	private void ApplyUserScopingFilters(ModelBuilder modelBuilder)
-	{
-		var currentUserIdProperty = typeof(BaseApplicationDbContext)
-			.GetProperty(nameof(CurrentUserId), BindingFlags.NonPublic | BindingFlags.Instance)!;
+    private void ApplyUserScopingFilters(ModelBuilder modelBuilder)
+    {
+        var currentUserIdProperty = typeof(BaseApplicationDbContext)
+            .GetProperty(nameof(CurrentUserId), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-		var thisAsBase = Expression.Convert(Expression.Constant(this), typeof(BaseApplicationDbContext));
+        var thisAsBase = Expression.Convert(Expression.Constant(this), typeof(BaseApplicationDbContext));
 
-		foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-		{
-			if (!entityType.ClrType.IsAssignableTo(typeof(AuditEntity)))
-				continue;
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (!entityType.ClrType.IsAssignableTo(typeof(AuditEntity)))
+                continue;
 
-			var parameter = Expression.Parameter(entityType.ClrType, "e");
-			var createdBy = Expression.Property(parameter, nameof(AuditEntity.CreatedBy));
-			var currentUserId = Expression.Property(thisAsBase, currentUserIdProperty);
-			var equals = Expression.Equal(createdBy, currentUserId);
-			var lambda = Expression.Lambda(equals, parameter);
+            var parameter = Expression.Parameter(entityType.ClrType, "e");
+            var createdBy = Expression.Property(parameter, nameof(AuditEntity.CreatedBy));
+            var currentUserId = Expression.Property(thisAsBase, currentUserIdProperty);
+            var equals = Expression.Equal(createdBy, currentUserId);
+            var lambda = Expression.Lambda(equals, parameter);
 
-			entityType.SetQueryFilter(lambda);
-		}
-	}
+            entityType.SetQueryFilter(lambda);
+        }
+    }
 }

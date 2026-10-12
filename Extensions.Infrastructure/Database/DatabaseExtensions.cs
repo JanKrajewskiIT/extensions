@@ -12,54 +12,54 @@ namespace Extensions.Infrastructure.Database;
 /// </summary>
 public static class DatabaseExtensions
 {
-	/// <summary>
-	/// Registers a PostgreSQL data source and <typeparamref name="TContext"/> with the DI container.
-	/// Enables dynamic JSON, retry-on-failure (3 attempts), and wires the <see cref="AuditInterceptor"/>.
-	/// Parameter logging is enabled automatically in Development.
-	/// </summary>
-	public static IHostApplicationBuilder AddPostgresDbContext<TContext>(
-		this IHostApplicationBuilder builder,
-		string connectionName,
-		Action<NpgsqlDataSourceBuilder>? configureDataSource = null,
-		Action<NpgsqlDbContextOptionsBuilder>? configureNpgsql = null)
-		where TContext : DbContext
-	{
-		builder.Services.AddScoped<AuditInterceptor>();
+    /// <summary>
+    /// Registers a PostgreSQL data source and <typeparamref name="TContext"/> with the DI container.
+    /// Enables dynamic JSON, retry-on-failure (3 attempts), and wires the <see cref="AuditInterceptor"/>.
+    /// Parameter logging is enabled automatically in Development.
+    /// </summary>
+    public static IHostApplicationBuilder AddPostgresDbContext<TContext>(
+        this IHostApplicationBuilder builder,
+        string connectionName,
+        Action<NpgsqlDataSourceBuilder>? configureDataSource = null,
+        Action<NpgsqlDbContextOptionsBuilder>? configureNpgsql = null)
+        where TContext : DbContext
+    {
+        builder.Services.AddScoped<AuditInterceptor>();
 
-		builder.AddNpgsqlDataSource(
-			connectionName,
-			configureDataSourceBuilder: options =>
-			{
-				options.EnableDynamicJson();
-				options.EnableUnmappedTypes();
-				options.EnableRecordsAsTuples();
+        builder.AddNpgsqlDataSource(
+            connectionName,
+            configureDataSourceBuilder: options =>
+            {
+                options.EnableDynamicJson();
+                options.EnableUnmappedTypes();
+                options.EnableRecordsAsTuples();
 
-				if (builder.Environment.IsDevelopment())
-				{
-					options.EnableParameterLogging();
-				}
+                if (builder.Environment.IsDevelopment())
+                {
+                    options.EnableParameterLogging();
+                }
 
-				configureDataSource?.Invoke(options);
-			});
+                configureDataSource?.Invoke(options);
+            });
 
-		builder.Services.AddDbContext<TContext>((serviceProvider, options) =>
-		{
-			var dataSource = serviceProvider.GetRequiredService<NpgsqlDataSource>();
+        builder.Services.AddDbContext<TContext>((serviceProvider, options) =>
+        {
+            var dataSource = serviceProvider.GetRequiredService<NpgsqlDataSource>();
 
-			options.UseNpgsql(dataSource, npgsqlOptions =>
-			{
-				npgsqlOptions.EnableRetryOnFailure(
-					maxRetryCount: 3,
-					maxRetryDelay: TimeSpan.FromSeconds(5),
-					errorCodesToAdd: null);
+            options.UseNpgsql(dataSource, npgsqlOptions =>
+            {
+                npgsqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorCodesToAdd: null);
 
-				configureNpgsql?.Invoke(npgsqlOptions);
-			});
+                configureNpgsql?.Invoke(npgsqlOptions);
+            });
 
-			var auditInterceptor = serviceProvider.GetRequiredService<AuditInterceptor>();
-			options.AddInterceptors(auditInterceptor);
-		});
+            var auditInterceptor = serviceProvider.GetRequiredService<AuditInterceptor>();
+            options.AddInterceptors(auditInterceptor);
+        });
 
-		return builder;
-	}
+        return builder;
+    }
 }

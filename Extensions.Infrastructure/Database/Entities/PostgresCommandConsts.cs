@@ -5,9 +5,9 @@ namespace Extensions.Infrastructure.Database.Entities;
 /// </summary>
 public static class PostgresCommandConsts
 {
-	/// <summary>SQL expression that returns the current transaction timestamp.</summary>
-	public const string CurrentTimeStamp = "CURRENT_TIMESTAMP";
+    /// <summary>SQL expression that returns the current transaction timestamp.</summary>
+    public const string CurrentTimeStamp = "CURRENT_TIMESTAMP";
 
-	/// <summary>PostgreSQL column type for binary JSON storage.</summary>
-	public const string JsonDataType = "jsonb";
+    /// <summary>PostgreSQL column type for binary JSON storage.</summary>
+    public const string JsonDataType = "jsonb";
 }

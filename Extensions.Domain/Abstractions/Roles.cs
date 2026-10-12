@@ -6,12 +6,12 @@ namespace Extensions.Domain.Abstractions;
 /// </summary>
 public static class Roles
 {
-	/// <summary>Administrator role with full access.</summary>
-	public const string Admin = "admin";
+    /// <summary>Administrator role with full access.</summary>
+    public const string Admin = "admin";
 
-	/// <summary>Moderator role with elevated permissions.</summary>
-	public const string Moderator = "moderator";
+    /// <summary>Moderator role with elevated permissions.</summary>
+    public const string Moderator = "moderator";
 
-	/// <summary>Standard authenticated user role.</summary>
-	public const string User = "user";
+    /// <summary>Standard authenticated user role.</summary>
+    public const string User = "user";
 }

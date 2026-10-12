@@ -5,6 +5,6 @@ namespace Extensions.Application.Pagination;
 /// When PageSize is 0 (default), all records are returned without pagination.
 /// </summary>
 public abstract record PagedQuery<TResponse>(
-	int Page = 1,
-	int PageSize = 0
+    int Page = 1,
+    int PageSize = 0
 ) : Abstractions.IQuery<PagedResponse<TResponse>>;

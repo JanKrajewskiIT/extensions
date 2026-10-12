@@ -8,18 +8,18 @@ namespace Extensions.Infrastructure.Database;
 /// </summary>
 public sealed class DesignTimeCurrentUserService : ICurrentUserService
 {
-	/// <inheritdoc />
-	public Guid? UserId => Guid.Empty;
+    /// <inheritdoc />
+    public Guid? UserId => Guid.Empty;
 
-	/// <inheritdoc />
-	public string? UserName => null;
+    /// <inheritdoc />
+    public string? UserName => null;
 
-	/// <inheritdoc />
-	public IReadOnlyList<string> Roles => [];
+    /// <inheritdoc />
+    public IReadOnlyList<string> Roles => [];
 
-	/// <inheritdoc />
-	public IReadOnlyDictionary<string, string> Claims => new Dictionary<string, string>();
+    /// <inheritdoc />
+    public IReadOnlyDictionary<string, string> Claims => new Dictionary<string, string>();
 
-	/// <inheritdoc />
-	public bool IsInRole(string role) => false;
+    /// <inheritdoc />
+    public bool IsInRole(string role) => false;
 }

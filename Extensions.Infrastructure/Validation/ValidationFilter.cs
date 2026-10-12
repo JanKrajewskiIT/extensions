@@ -11,23 +11,23 @@ namespace Extensions.Infrastructure.Validation;
 /// </summary>
 public sealed class ValidationFilter<T> : IEndpointFilter where T : class
 {
-	/// <inheritdoc />
-	public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
-	{
-		var validator = context.HttpContext.RequestServices.GetService<IValidator<T>>();
+    /// <inheritdoc />
+    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+    {
+        var validator = context.HttpContext.RequestServices.GetService<IValidator<T>>();
 
-		if (validator is not null)
-		{
-			var argument = context.Arguments.OfType<T>().FirstOrDefault();
+        if (validator is not null)
+        {
+            var argument = context.Arguments.OfType<T>().FirstOrDefault();
 
-			if (argument is not null)
-			{
-				await validator.ValidateAndThrowAsync(argument, context.HttpContext.RequestAborted);
-			}
-		}
+            if (argument is not null)
+            {
+                await validator.ValidateAndThrowAsync(argument, context.HttpContext.RequestAborted);
+            }
+        }
 
-		return await next(context);
-	}
+        return await next(context);
+    }
 }
 
 /// <summary>
@@ -35,12 +35,12 @@ public sealed class ValidationFilter<T> : IEndpointFilter where T : class
 /// </summary>
 public static class ValidationFilterExtensions
 {
-	/// <summary>
-	/// Adds automatic FluentValidation to the endpoint for the specified request type.
-	/// If a validator is registered in DI, it will run before the endpoint handler.
-	/// </summary>
-	public static RouteHandlerBuilder WithValidation<T>(this RouteHandlerBuilder builder) where T : class
-	{
-		return builder.AddEndpointFilter<ValidationFilter<T>>();
-	}
+    /// <summary>
+    /// Adds automatic FluentValidation to the endpoint for the specified request type.
+    /// If a validator is registered in DI, it will run before the endpoint handler.
+    /// </summary>
+    public static RouteHandlerBuilder WithValidation<T>(this RouteHandlerBuilder builder) where T : class
+    {
+        return builder.AddEndpointFilter<ValidationFilter<T>>();
+    }
 }
