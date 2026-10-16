@@ -17,15 +17,16 @@ using System.Text.Json.Serialization;
 namespace Extensions.Infrastructure;
 
 /// <summary>
-/// Top-level bootstrapping helpers shared by all Recron microservices.
+/// Top-level bootstrapping helpers for ASP.NET Core modules.
 /// </summary>
 public static class ConfigurationExtensions
 {
     /// <summary>
-    /// Builds and runs a Recron module: creates the builder, wires common defaults,
+    /// Builds and runs a module: creates the builder, wires common defaults,
     /// invokes <paramref name="configureServices"/> and <paramref name="configureApp"/>,
     /// optionally executes <paramref name="beforeRun"/> (e.g. database migrations),
     /// then starts the host.
+    /// With --export-openapi &lt;output.json&gt;, maps and exports endpoints without starting the host or invoking beforeRun.
     /// </summary>
     public static async Task RunModuleAsync(
         string[] args,
@@ -33,17 +34,31 @@ public static class ConfigurationExtensions
         Action<WebApplication> configureApp,
         Func<IServiceProvider, CancellationToken, Task>? beforeRun = null)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        ArgumentNullException.ThrowIfNull(args);
+        ArgumentNullException.ThrowIfNull(configureServices);
+        ArgumentNullException.ThrowIfNull(configureApp);
+        var exportPath = OpenApiContractExport.GetOutputPath(args);
+        var builder = WebApplication.CreateBuilder(exportPath is null ? args : Array.Empty<string>());
 
         var keycloakSection = builder.Configuration.GetRequiredSection("Keycloak");
         builder.AddServiceDefaults(keycloakSection);
 
         configureServices(builder);
 
-        var app = builder.Build();
-        app.UseCommonConfiguration();
+        await using var app = builder.Build();
+        if (exportPath is null)
+        {
+            app.UseCommonConfiguration();
+        }
 
         configureApp(app);
+
+        if (exportPath is not null)
+        {
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            await OpenApiContractExport.WriteAsync(app, exportPath, deadline.Token);
+            return;
+        }
 
         if (beforeRun is not null)
         {
