@@ -7,6 +7,7 @@ using Extensions.Infrastructure.OpenApi;
 using Extensions.Infrastructure.RateLimiting;
 using Extensions.Infrastructure.Security;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +27,7 @@ public static class ConfigurationExtensions
     /// invokes <paramref name="configureServices"/> and <paramref name="configureApp"/>,
     /// optionally executes <paramref name="beforeRun"/> (e.g. database migrations),
     /// then starts the host.
-    /// With --export-openapi &lt;output.json&gt;, materializes and exports mapped endpoints without starting the host or invoking beforeRun.
+    /// With --export-openapi &lt;output.json&gt;, briefly starts an ephemeral loopback host to export mapped endpoints without invoking beforeRun.
     /// </summary>
     public static async Task RunModuleAsync(
         string[] args,
@@ -39,11 +40,31 @@ public static class ConfigurationExtensions
         ArgumentNullException.ThrowIfNull(configureApp);
         var exportPath = OpenApiContractExport.GetOutputPath(args);
         var builder = WebApplication.CreateBuilder(exportPath is null ? args : Array.Empty<string>());
+        if (exportPath is not null)
+        {
+            builder.WebHost.UseUrls("http://127.0.0.1:0");
+        }
 
         var keycloakSection = builder.Configuration.GetRequiredSection("Keycloak");
         builder.AddServiceDefaults(keycloakSection);
 
+        var hostServicesBeforeModuleConfiguration = exportPath is null
+            ? null
+            : builder.Services
+                .Where(service => service.ServiceType == typeof(IHostedService))
+                .ToHashSet();
+
         configureServices(builder);
+        if (hostServicesBeforeModuleConfiguration is not null)
+        {
+            foreach (var hostedService in builder.Services
+                .Where(service => service.ServiceType == typeof(IHostedService)
+                    && !hostServicesBeforeModuleConfiguration.Contains(service))
+                .ToArray())
+            {
+                builder.Services.Remove(hostedService);
+            }
+        }
 
         await using var app = builder.Build();
         if (exportPath is null)
@@ -56,6 +77,7 @@ public static class ConfigurationExtensions
         if (exportPath is not null)
         {
             using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            await app.StartAsync(deadline.Token);
             await OpenApiContractExport.WriteAsync(app, exportPath, deadline.Token);
             return;
         }
