@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 
@@ -32,6 +33,11 @@ internal static class OpenApiContractExport
 
     public static async Task WriteAsync(WebApplication app, string outputPath, CancellationToken cancellationToken)
     {
+        var endpoints = app.Services.GetRequiredService<EndpointDataSource>().Endpoints;
+        if (endpoints.Count == 0)
+        {
+            throw new InvalidOperationException("OpenAPI export found no mapped endpoints.");
+        }
         var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(DocumentName);
         var document = await provider.GetOpenApiDocumentAsync(cancellationToken);
         if (document.Paths.Count == 0)
