@@ -34,6 +34,10 @@ internal static class OpenApiContractExport
     {
         var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(DocumentName);
         var document = await provider.GetOpenApiDocumentAsync(cancellationToken);
+        if (document.Paths.Count == 0)
+        {
+            throw new InvalidOperationException("OpenAPI export produced no endpoint paths; refusing to write an empty contract.");
+        }
         Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
         await using var stream = File.Create(outputPath);
         await document.SerializeAsJsonAsync(stream, OpenApiSpecVersion.OpenApi3_1, cancellationToken);
