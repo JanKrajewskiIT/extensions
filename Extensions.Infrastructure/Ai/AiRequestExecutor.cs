@@ -30,16 +30,29 @@ public sealed class AiRequestExecutor : IDisposable
     }
 
     /// <summary>Bounds caller waiting even when the provider ignores cancellation; late results are never returned.</summary>
-    public async Task<ChatResponse> GetResponseAsync(IChatClient client, AiRequestPolicy policy,
+    public Task<ChatResponse> GetResponseAsync(IChatClient client, AiRequestPolicy policy,
         IEnumerable<ChatMessage> messages, CancellationToken cancellationToken = default)
+        => GetResponseAsync(client, policy, messages, new ChatOptions(), cancellationToken);
+
+    /// <summary>Preserves caller model and structured-output options within the operation's output and waiting limits.</summary>
+    public async Task<ChatResponse> GetResponseAsync(IChatClient client, AiRequestPolicy policy,
+        IEnumerable<ChatMessage> messages, ChatOptions options, CancellationToken cancellationToken = default)
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(policy);
         ArgumentNullException.ThrowIfNull(messages);
+        ArgumentNullException.ThrowIfNull(options);
+        var requestOptions = options.Clone();
+        if (requestOptions.MaxOutputTokens is <= 0 || requestOptions.MaxOutputTokens > policy.MaxOutputTokens)
+        {
+            throw new ArgumentException("Requested output exceeds the operation policy.", nameof(options));
+        }
+        requestOptions.MaxOutputTokens ??= policy.MaxOutputTokens;
         cancellationToken.ThrowIfCancellationRequested();
         var chatMessages = messages.ToArray();
-        if (chatMessages.Sum(message => (long)Encoding.UTF8.GetByteCount(message.Text)) > policy.MaxInputBytes)
+        if (chatMessages.Sum(message => (long)Encoding.UTF8.GetByteCount(message.Text)) +
+            Encoding.UTF8.GetByteCount(requestOptions.Instructions ?? string.Empty) > policy.MaxInputBytes)
         {
             throw new ValidationException([
                 new ValidationFailure(nameof(messages), "AI input exceeds the supported size.")
@@ -52,8 +65,7 @@ public sealed class AiRequestExecutor : IDisposable
         var tags = new TagList { { "operation", policy.Operation } };
         try
         {
-            var response = await client.GetResponseAsync(chatMessages,
-                new ChatOptions { MaxOutputTokens = policy.MaxOutputTokens }, deadline.Token).WaitAsync(deadline.Token);
+            var response = await client.GetResponseAsync(chatMessages, requestOptions, deadline.Token).WaitAsync(deadline.Token);
             if (response.Usage?.InputTokenCount is long input && input >= 0)
             {
                 _inputTokens.Add(input, tags);

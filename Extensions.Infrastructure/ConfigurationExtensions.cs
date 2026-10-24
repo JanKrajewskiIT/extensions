@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http.Resilience;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -100,14 +101,7 @@ public static class ConfigurationExtensions
         IConfigurationSection keycloakSection)
     {
         builder.AddStructuredLogging();
-        builder.AddApplicationMetrics();
-
-        builder.Services.AddServiceDiscovery();
-        builder.Services.ConfigureHttpClientDefaults(http =>
-        {
-            http.AddStandardResilienceHandler();
-            http.AddServiceDiscovery();
-        });
+        builder.AddHostDefaults();
 
         var chatConnectionString = builder.Configuration.GetConnectionString("chat");
         if (!string.IsNullOrWhiteSpace(chatConnectionString))
@@ -154,6 +148,35 @@ public static class ConfigurationExtensions
         app.UseExceptionHandler();
 
         return app;
+    }
+
+    /// <summary>
+    /// Registers telemetry, process health checks, service discovery and HTTP resilience
+    /// without requiring authentication, database or API configuration.
+    /// </summary>
+    /// <param name="builder">The consuming host builder.</param>
+    /// <param name="configureResilience">Optional host-owned HTTP resilience policy.</param>
+    /// <typeparam name="TBuilder">The host builder type.</typeparam>
+    /// <returns>The consuming host builder.</returns>
+    public static TBuilder AddHostDefaults<TBuilder>(
+        this TBuilder builder,
+        Action<HttpStandardResilienceOptions>? configureResilience = null)
+        where TBuilder : IHostApplicationBuilder
+    {
+        builder.AddApplicationMetrics();
+        builder.Services.AddServiceDiscovery();
+        builder.Services.ConfigureHttpClientDefaults(http =>
+        {
+            var resilience = http.AddStandardResilienceHandler();
+            if (configureResilience is not null)
+            {
+                resilience.Configure(configureResilience);
+            }
+
+            http.AddServiceDiscovery();
+        });
+
+        return builder;
     }
 
     private static void ConfigureJsonOptions(this IServiceCollection services)
