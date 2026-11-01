@@ -1,6 +1,7 @@
 using Extensions.Infrastructure.Database.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
@@ -24,7 +25,10 @@ public static class DatabaseExtensions
         Action<NpgsqlDbContextOptionsBuilder>? configureNpgsql = null)
         where TContext : DbContext
     {
-        builder.Services.AddScoped<AuditInterceptor>();
+        builder.Services.TryAddSingleton<TimeProvider>(TimeProvider.System);
+        builder.Services.TryAddScoped<IAuditActorProvider, CurrentUserAuditActorProvider>();
+        builder.Services.AddScoped(provider => new AuditInterceptor(
+            provider.GetRequiredService<IAuditActorProvider>(), provider.GetRequiredService<TimeProvider>()));
 
         builder.AddNpgsqlDataSource(
             connectionName,

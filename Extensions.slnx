@@ -10,4 +10,7 @@
   <Project Path="Extensions.Application/Extensions.Application.csproj" />
   <Project Path="Extensions.Domain/Extensions.Domain.csproj" />
   <Project Path="Extensions.Infrastructure/Extensions.Infrastructure.csproj" />
+  <Project Path="Extensions.Storage/Extensions.Storage.csproj" />
+  <Project Path="Extensions.Messaging/Extensions.Messaging.csproj" />
+  <Project Path="Extensions.Jobs/Extensions.Jobs.csproj" />
 </Solution>

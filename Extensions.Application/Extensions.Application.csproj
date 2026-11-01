@@ -3,4 +3,7 @@
     <PackageId>Extensions.Application</PackageId>
     <PackageDescription>CQRS command and query marker interfaces and handler contracts.</PackageDescription>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Extensions.Domain/Extensions.Domain.csproj" />
+  </ItemGroup>
 </Project>

@@ -1,3 +1,4 @@
+using Extensions.Infrastructure.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,8 +16,8 @@ public sealed class ResourceConcurrencyFilter : IEndpointFilter
         }
         catch (DbUpdateConcurrencyException)
         {
-            return Results.Problem(statusCode: StatusCodes.Status409Conflict, title: "Resource changed",
-                extensions: new Dictionary<string, object?> { ["code"] = "resource_conflict" });
+            return HttpProblemResponses.Problem(context.HttpContext,
+                new HttpFailure(StatusCodes.Status409Conflict, "resource_conflict"));
         }
     }
 }

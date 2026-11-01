@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Extensions.Jobs</PackageId>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <Description>Opt-in durable jobs, recurring schedules, fenced execution and work budgets.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Extensions.Messaging/Extensions.Messaging.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

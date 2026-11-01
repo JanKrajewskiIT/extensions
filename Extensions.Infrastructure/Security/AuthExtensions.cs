@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Extensions.Domain.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -36,6 +38,38 @@ public static class AuthExtensions
 
         /// <summary>Requires any of the known application roles (admin, moderator, or user).</summary>
         public const string RequireAnyRole = nameof(RequireAnyRole);
+    }
+
+    /// <summary>Preserves validated authentication methods after inbound JWT claim mapping without bypassing prior validation.</summary>
+    public static IServiceCollection PreserveAuthenticationMethods(this IServiceCollection services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+        {
+            var previous = options.Events.OnTokenValidated;
+            options.Events.OnTokenValidated = async context =>
+            {
+                if (previous is not null)
+                {
+                    await previous(context);
+                }
+
+                if (context.Result?.Failure is not null || context.Principal?.Identity is not ClaimsIdentity { IsAuthenticated: true } identity ||
+                    !JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.TryGetValue("amr", out var mapped) || mapped == "amr")
+                {
+                    return;
+                }
+
+                foreach (var claim in context.Principal.FindAll(mapped).ToArray())
+                {
+                    if (!identity.HasClaim("amr", claim.Value))
+                    {
+                        identity.AddClaim(new Claim("amr", claim.Value, claim.ValueType, claim.Issuer, claim.OriginalIssuer));
+                    }
+                }
+            };
+        });
+        return services;
     }
 
     internal static IServiceCollection AddAuth(

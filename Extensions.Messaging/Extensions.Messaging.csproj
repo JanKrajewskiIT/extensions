@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Extensions.Messaging</PackageId>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <Description>Opt-in Kafka delivery, transactional outbox/inbox and host-owned quarantine.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Extensions.Infrastructure/Extensions.Infrastructure.csproj" />
+    <PackageReference Include="Confluent.Kafka" Version="2.16.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

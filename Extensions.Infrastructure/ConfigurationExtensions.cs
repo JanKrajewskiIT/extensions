@@ -1,7 +1,7 @@
 using Extensions.Domain.Abstractions;
 using Extensions.Infrastructure.Caching;
 using Extensions.Infrastructure.Cors;
-using Extensions.Infrastructure.Handlers;
+using Extensions.Infrastructure.Http;
 using Extensions.Infrastructure.Metrics;
 using Extensions.Infrastructure.OpenApi;
 using Extensions.Infrastructure.RateLimiting;
@@ -119,9 +119,7 @@ public static class ConfigurationExtensions
         builder.Services.AddOpenApiWithAuth(keycloakSection);
         builder.Services.AddEndpointsApiExplorer();
 
-        builder.Services.AddProblemDetails();
-        builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
-        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        builder.Services.AddHttpProblemResponses();
 
         builder.Services.AddHybridCaching();
 
