@@ -37,10 +37,7 @@ jobs:
       run: dotnet build Extensions.slnx --configuration Release --no-restore
 
     - name: Pack
-      run: |
-        dotnet pack Extensions.Domain/Extensions.Domain.csproj --configuration Release --no-build --output nupkgs
-        dotnet pack Extensions.Application/Extensions.Application.csproj --configuration Release --no-build --output nupkgs
-        dotnet pack Extensions.Infrastructure/Extensions.Infrastructure.csproj --configuration Release --no-build --output nupkgs
+      run: dotnet pack Extensions.slnx --configuration Release --no-build --output nupkgs
 
     - name: Publish to GitHub Packages
       env:

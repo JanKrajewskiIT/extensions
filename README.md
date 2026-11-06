@@ -12,6 +12,8 @@ Documentation: [Recron project docs](https://docs.bluebraces.online/projects/ext
 
 NuGet dependency versions are managed centrally in [Directory.Packages.props](Directory.Packages.props). Projects declare only the packages they use through versionless `PackageReference` items and inherit central package management without local opt-outs. The shared version of the published Extensions packages remains in [Directory.Build.props](Directory.Build.props).
 
+The [NuGet publication workflow](.github/workflows/publish-nuget.yml) restores, builds and packs [Extensions.slnx](Extensions.slnx), then publishes the resulting packages to GitHub Packages. Every packable project in the solution is included without a separate project list in the workflow. Existing package versions are skipped rather than overwritten.
+
 ## Host configuration
 
 `ConfigurationExtensions.AddHostDefaults<TBuilder>()` registers OpenTelemetry, OTLP export when configured, self health checks, service discovery and standard HTTP resilience for an `IHostApplicationBuilder`. It does not register authentication, OpenAPI, persistence, caching, application handlers or jobs. ASP.NET Core hosts map the existing probes through `app.UseDefaultHealthChecks()` from `Extensions.Infrastructure.Metrics`.
