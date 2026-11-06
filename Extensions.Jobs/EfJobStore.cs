@@ -31,7 +31,7 @@ public sealed class EfJobStore<TContext, TJob>(TContext context, IJobCodec<TJob>
 	{
 		_ = codec.Restore(job);
 		var current = codec.Describe(job);
-		await using var transaction = await context.Database.BeginTransactionAsync(token);
+		await using var transaction = await DatabaseTransactions.BeginAsync(context, token);
 		await LockJobAsync(context, current.Definition.Id, token);
 		var row = await context.Set<JobRow>().SingleOrDefaultAsync(value => value.Id == current.Definition.Id &&
 			value.ScopeKey == current.Definition.ScopeKey, token);
@@ -71,7 +71,7 @@ public sealed class EfJobStore<TContext, TJob>(TContext context, IJobCodec<TJob>
 
 	public async ValueTask<MessageAcceptance> AcceptAsync(JobInboxReceipt receipt, TJob job, CancellationToken token)
 	{
-		await using var transaction = await context.Database.BeginTransactionAsync(token);
+		await using var transaction = await DatabaseTransactions.BeginAsync(context, token);
 		var result = await AcceptInTransactionAsync(receipt, job, token);
 		if (result != MessageAcceptance.ConflictingDuplicate)
 		{
@@ -141,7 +141,7 @@ public sealed class EfJobStore<TContext, TJob>(TContext context, IJobCodec<TJob>
 			.OrderBy(row => row.NextAttemptAt).ThenBy(row => row.Id).Take(32).ToListAsync(token);
 		foreach (var candidate in candidates)
 		{
-			await using var transaction = await context.Database.BeginTransactionAsync(token);
+			await using var transaction = await DatabaseTransactions.BeginAsync(context, token);
 			await context.LockAsync(DatabaseLockKeys.Create("job-concurrency", candidate.ScopeKey, candidate.ConcurrencyKey), token);
 			await LockJobAsync(context, candidate.Id, token);
 			now = clock.GetUtcNow();

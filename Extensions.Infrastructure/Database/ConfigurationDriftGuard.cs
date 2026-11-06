@@ -48,7 +48,7 @@ public sealed class ConfigurationDriftGuard<TRow>(DbContext context) where TRow 
 			reason = code;
 		}
 
-		await using var transaction = await storage.Database.BeginTransactionAsync(token);
+		await using var transaction = await DatabaseTransactions.BeginAsync(storage, token);
 		await storage.LockAsync(lockKey, token);
 		var row = await selection.SingleAsync(token);
 		if (!current(row))

@@ -13,4 +13,5 @@
   <Project Path="Extensions.Storage/Extensions.Storage.csproj" />
   <Project Path="Extensions.Messaging/Extensions.Messaging.csproj" />
   <Project Path="Extensions.Jobs/Extensions.Jobs.csproj" />
+  <Project Path="Extensions.Integrations/Extensions.Integrations.csproj" />
 </Solution>

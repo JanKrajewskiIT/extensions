@@ -100,7 +100,20 @@ public static class ConfigurationExtensions
         this WebApplicationBuilder builder,
         IConfigurationSection keycloakSection)
     {
-        builder.AddStructuredLogging();
+        return builder.AddServiceDefaults(keycloakSection, host => host.AddStructuredLogging());
+    }
+
+    /// <summary>
+    /// Registers API defaults using the consuming host's logging composition instead of the default logger.
+    /// </summary>
+    public static WebApplicationBuilder AddServiceDefaults(
+        this WebApplicationBuilder builder,
+        IConfigurationSection keycloakSection,
+        Action<WebApplicationBuilder> configureLogging)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(configureLogging);
+        configureLogging(builder);
         builder.AddHostDefaults();
 
         var chatConnectionString = builder.Configuration.GetConnectionString("chat");
@@ -134,7 +147,18 @@ public static class ConfigurationExtensions
     /// </summary>
     public static IApplicationBuilder UseCommonConfiguration(this WebApplication app)
     {
-        app.UseStructuredLogging();
+        return app.UseCommonConfiguration(host => host.UseStructuredLogging());
+    }
+
+    /// <summary>
+    /// Adds shared middleware with the consuming host's explicit request-logging policy.
+    /// </summary>
+    public static IApplicationBuilder UseCommonConfiguration(this WebApplication app,
+        Action<WebApplication> configureRequestLogging)
+    {
+        ArgumentNullException.ThrowIfNull(app);
+        ArgumentNullException.ThrowIfNull(configureRequestLogging);
+        configureRequestLogging(app);
         app.UseDefaultHealthChecks();
 
         app.UseAllCors();

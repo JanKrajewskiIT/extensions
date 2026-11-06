@@ -20,6 +20,23 @@ The source joins latest definitions to state, filters future `NextRunAt` and act
 
 `JobRow.CreatedAt` is populated by `JobRows.Create` and stays immutable across state writes. The model now requires this column plus the owner/kind/creation/ID and dependency-scope/status/creation indexes. `EfJobDependencies` uses SQL existence checks over creation time without decoding payloads or limiting candidates. Its existing constructor accepting a codec remains available for source/binary compatibility; the codec is no longer needed by the query. Each consuming host owns a migration and an accurate backfill using its own payload format. Deploy the schema before compatible hosts and coordinate old writers, which cannot supply the new required column.
 
+## Attempt finalization and retry policy
+
+The runner stops its heartbeat before finishing an attempt. Its internal `JobExecution.FinishAsync` serializes with checkpoint/renewal changes, reloads the current job and verifies the same running lease. A persisted `CancellationRequested` takes precedence over both completion and failure: it acknowledges cancellation and discards the handler's result reference. Terminal persistence uses the host stopping token, not the cancelled handler token. A cancellation noticed after the last heartbeat therefore does not become a handler-state exception or wait for lease recovery.
+
+An optimistic save conflict repeats only the terminal state transition, at most three times per finalization call. Each try opens a fresh persistence scope, reads current state and computes transition time again; a cancellation committed between read and save is observed on the next try. The handler and its external effects are never replayed by this loop. Missing jobs, changed leases, dependency failures and exhausted conflicts still fail visibly; the loop does not override fencing or guarantee a commit after lease expiry. Shutdown keeps its existing recovery path, and cancelling a job is not proof that its earlier business effects were rolled back.
+
+| State observed at finalization | Result |
+|---|---|
+| Same running lease, no cancellation | Commit completion or the classified failure/retry. |
+| Same running lease, cancellation requested | Commit `Cancelled` without publishing the returned result. |
+| Concurrent version change | Read again in a fresh scope within the bounded finalization loop. |
+| Lost lease, shutdown or persistence failure | Preserve fencing/cancellation and existing recovery; do not claim a terminal commit. |
+
+`JobFailure` keeps its existing positional record and optional `RetryAfter`. For `Transient` without a delay, the runner uses `JobRunnerOptions.DefaultRetryDelay` (five seconds). The delay must fit strictly before the job deadline and the state machine still enforces remaining attempts; insufficient deadline/attempt budget can therefore still end in `Failed`. Explicit delays must be positive, and a deferred classification must be transient. Invalid classification combinations fail as configuration errors instead of silently scheduling a permanent failure as deferred work. Retry timestamps are recomputed for each finalization try and checked against the remaining deadline before addition.
+
+`JobRunnerOptions.IsValid` now requires a positive default retry delay and at least one nonblank, unique owner module. Hosts must retain options validation at startup. QuantCore's three role-based pools and its live-ingestion, broker-synchronization and trading-session runners already assign explicit module lists. These are unreleased source changes; no package, host, build, database or executable race/retry check has run.
+
 ## Work budgets
 
 `SharedWorkBudgets<TRequest,TAllocation>` reserves and settles through `IWorkBudgetStore<TRequest,TAllocation>`; allocations implement IWorkAllocation. The store owns the atomic shared partition, approval, active allocations, operation counters and durable receipts. It may use the owner's existing PostgreSQL registry without adding a new generic table. WorkCapacity supplies neutral capacity, deadline and charge arithmetic; the host maps its own priority to the protected-capacity flag.
@@ -30,4 +47,4 @@ All workers sharing a limit must use one authoritative store/partition. Cloning 
 
 ## Compatibility and deferred checks
 
-This source extraction preserves the existing QuantCore state transitions, enum values, lock/occurrence identities. The creation-time column/index addition and revised schedule timing are described above. Canonical JSON and EF metadata comparisons, lease/retry/cancellation/recovery scenarios, package packing and clean-consumer builds remain unrun. Known claim candidate-window, long-deadline and UTC-day-boundary behavior is retained for the separate defect task. Moving enums/contracts and deriving closed records changes CLR contracts and requires consumer rebuilds and release classification. No version was changed, package published, database migrated or runtime started.
+State/enum values and lock/occurrence identities remain unchanged. Finalization precedence, retry defaults and stricter runner-option validation above are behavior changes. The creation-time column/index addition and revised schedule timing are also described above. Canonical JSON and EF metadata comparisons, lease/retry/cancellation/recovery scenarios, package packing and clean-consumer builds remain unrun. Known claim candidate-window, long-deadline and UTC-day-boundary behavior is retained for the separate defect task. Moving enums/contracts and deriving closed records changes CLR contracts and requires consumer rebuilds and release classification. No version was changed, package published, database migrated or runtime started.

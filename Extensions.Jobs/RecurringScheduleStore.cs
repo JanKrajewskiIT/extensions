@@ -36,7 +36,7 @@ public class RecurringScheduleStore<TContext, TSchedule, TLease, TJob>(TContext 
 	public async ValueTask<TLease?> AcquireAsync(TSchedule schedule, string owner, CancellationToken token)
 	{
 		var definition = codec.Describe(schedule);
-		await using var transaction = await context.Database.BeginTransactionAsync(token);
+		await using var transaction = await DatabaseTransactions.BeginAsync(context, token);
 		await LockScheduleAsync(context, owner, definition.Id, token);
 		if (!await IsCurrentDefinitionAsync(schedule, owner, token))
 		{
@@ -93,7 +93,7 @@ public class RecurringScheduleStore<TContext, TSchedule, TLease, TJob>(TContext 
 
 	public async ValueTask RenewAsync(TLease lease, CancellationToken token)
 	{
-		await using var transaction = await context.Database.BeginTransactionAsync(token);
+		await using var transaction = await DatabaseTransactions.BeginAsync(context, token);
 		await LockScheduleAsync(context, lease.Owner, lease.ScheduleId, token);
 		var row = await RequireLeaseAsync(lease, token);
 		var now = clock.GetUtcNow();
@@ -106,7 +106,7 @@ public class RecurringScheduleStore<TContext, TSchedule, TLease, TJob>(TContext 
 
 	public async ValueTask CommitAsync(TLease lease, TJob? job, CancellationToken token)
 	{
-		await using var transaction = await context.Database.BeginTransactionAsync(token);
+		await using var transaction = await DatabaseTransactions.BeginAsync(context, token);
 		await LockScheduleAsync(context, lease.Owner, lease.ScheduleId, token);
 		var row = await RequireLeaseAsync(lease, token);
 		var definition = codec.Describe(lease.Definition);
@@ -154,7 +154,7 @@ public class RecurringScheduleStore<TContext, TSchedule, TLease, TJob>(TContext 
 			throw new ArgumentException("A dependency wait requires the missing declared dependency kinds.");
 		}
 
-		await using var transaction = await context.Database.BeginTransactionAsync(token);
+		await using var transaction = await DatabaseTransactions.BeginAsync(context, token);
 		await LockScheduleAsync(context, lease.Owner, lease.ScheduleId, token);
 		_ = await RequireLeaseAsync(lease, token);
 		await events.RecordAsync(context, lease, RecurringOccurrenceOutcome.WaitingForDependencies, null, missing, clock.GetUtcNow(), token);
@@ -164,7 +164,7 @@ public class RecurringScheduleStore<TContext, TSchedule, TLease, TJob>(TContext 
 
 	public async ValueTask ReleaseAsync(TLease lease, CancellationToken token)
 	{
-		await using var transaction = await context.Database.BeginTransactionAsync(token);
+		await using var transaction = await DatabaseTransactions.BeginAsync(context, token);
 		await LockScheduleAsync(context, lease.Owner, lease.ScheduleId, token);
 		var row = await FindAsync(lease.Owner, lease.ScheduleId, token);
 		if (row?.LeaseId == lease.LeaseId)

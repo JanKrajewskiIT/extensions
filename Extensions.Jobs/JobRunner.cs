@@ -101,7 +101,7 @@ public class JobRunner<TJob>(IServiceScopeFactory scopes, TimeProvider clock, IO
 			var result = await worker.ExecuteAsync(execution, executionCancellation.Token);
 			await StopHeartbeatAsync();
 			executionCancellation.Token.ThrowIfCancellationRequested();
-			await execution.ChangeAsync(job => job.Complete(result, clock.GetUtcNow()), stoppingToken);
+			await execution.FinishAsync(job => job.Complete(result, clock.GetUtcNow()), stoppingToken);
 		}
 		catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
 		{
@@ -110,7 +110,7 @@ public class JobRunner<TJob>(IServiceScopeFactory scopes, TimeProvider clock, IO
 		catch (OperationCanceledException) when (execution.Details.CancellationRequested)
 		{
 			await StopHeartbeatAsync();
-			await execution.ChangeAsync(job => job.AcknowledgeCancellation(clock.GetUtcNow()), stoppingToken);
+			await execution.FinishAsync(job => job.AcknowledgeCancellation(clock.GetUtcNow()), stoppingToken);
 		}
 		catch (OperationCanceledException) when (executionCancellation.IsCancellationRequested)
 		{
@@ -118,15 +118,30 @@ public class JobRunner<TJob>(IServiceScopeFactory scopes, TimeProvider clock, IO
 		}
 		catch (Exception failure)
 		{
+			await StopHeartbeatAsync();
+			if (execution.Details.CancellationRequested)
+			{
+				await execution.FinishAsync(job => job.AcknowledgeCancellation(clock.GetUtcNow()), stoppingToken);
+				return;
+			}
+
+			executionCancellation.Token.ThrowIfCancellationRequested();
 			var classification = worker.Classify(failure, execution.Details.Attempts);
+			if (classification.Deferred && classification.Kind != JobFailureKind.Transient ||
+				classification.RetryAfter is { } retryAfter && retryAfter <= TimeSpan.Zero)
+			{
+				throw new InvalidOperationException("Deferred failures must be transient and explicit retry delays must be positive.");
+			}
+
 			logger.Log(classification.Kind == JobFailureKind.Permanent ? LogLevel.Error : LogLevel.Warning,
 				"Job {JobId} attempt failed with {FailureCode} ({FailureType})", id, classification.Code, failure.GetType().Name);
-			await StopHeartbeatAsync();
-			executionCancellation.Token.ThrowIfCancellationRequested();
-			var now = clock.GetUtcNow();
-			var retry = classification.RetryAfter is { } delay ? now + delay : (DateTimeOffset?)null;
-			await execution.ChangeAsync(job =>
+			var delay = classification.RetryAfter ?? (classification.Kind == JobFailureKind.Transient
+				? options.Value.DefaultRetryDelay : (TimeSpan?)null);
+			await execution.FinishAsync(job =>
 			{
+				var now = clock.GetUtcNow();
+				var retry = delay is { } duration && duration < job.Details.Definition.Deadline - now
+					? now + duration : (DateTimeOffset?)null;
 				if (classification.Deferred && retry is { } deferred && deferred < job.Details.Definition.Deadline)
 				{
 					job.DeferForCapacity(classification.Code, now, deferred);

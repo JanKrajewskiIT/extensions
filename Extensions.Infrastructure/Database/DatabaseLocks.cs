@@ -15,6 +15,9 @@ public static class DatabaseLocks
 			throw new InvalidOperationException("An advisory lock requires an explicit transaction.");
 		}
 
+		cancellationToken.ThrowIfCancellationRequested();
+		DatabaseTransactions.RequireCompatibleExecutionStrategy(context);
+
 		// PostgreSQL transaction advisory locks have no equivalent EF LINQ operation.
 		await context.Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))", cancellationToken);
 	}

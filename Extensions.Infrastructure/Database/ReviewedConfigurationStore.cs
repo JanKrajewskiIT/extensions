@@ -8,10 +8,21 @@ public sealed class ReviewedConfigurationStore<TRow>(DbContext context) where TR
 	private readonly DbContext storage = context ?? throw new ArgumentNullException(nameof(context));
 
 	/// <summary>Changes a local configuration state and commits its host-owned facts atomically.</summary>
-	public async ValueTask<TState> ChangeAsync<TState>(TState next, long expectedRevision, string lockKey,
+	public ValueTask<TState> ChangeAsync<TState>(TState next, long expectedRevision, string lockKey,
 		IQueryable<TRow> selection, Func<TRow, TState> read, Func<TState, long> revision,
 		Func<TState, string> proposalHash, Func<TState, string> stateHash,
 		Func<TState, TRow?, CancellationToken, ValueTask> stage, CancellationToken token)
+	{
+		return ChangeAsync(next, expectedRevision, lockKey, selection, read, revision, proposalHash, stateHash,
+			stage, null, token);
+	}
+
+	/// <summary>Runs host admission inside the transaction before acquiring the local revision lock.</summary>
+	public async ValueTask<TState> ChangeAsync<TState>(TState next, long expectedRevision, string lockKey,
+		IQueryable<TRow> selection, Func<TRow, TState> read, Func<TState, long> revision,
+		Func<TState, string> proposalHash, Func<TState, string> stateHash,
+		Func<TState, TRow?, CancellationToken, ValueTask> stage,
+		Func<CancellationToken, ValueTask>? admit, CancellationToken token)
 	{
 		ArgumentNullException.ThrowIfNull(selection);
 		ArgumentNullException.ThrowIfNull(read);
@@ -19,7 +30,12 @@ public sealed class ReviewedConfigurationStore<TRow>(DbContext context) where TR
 		ArgumentNullException.ThrowIfNull(proposalHash);
 		ArgumentNullException.ThrowIfNull(stateHash);
 		ArgumentNullException.ThrowIfNull(stage);
-		await using var transaction = await storage.Database.BeginTransactionAsync(token);
+		await using var transaction = await DatabaseTransactions.BeginAsync(storage, token);
+		if (admit is not null)
+		{
+			await admit(token);
+		}
+
 		await storage.LockAsync(lockKey, token);
 		var row = await selection.SingleOrDefaultAsync(token);
 		if (row is not null && expectedRevision == 0)

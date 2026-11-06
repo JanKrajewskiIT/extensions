@@ -2,7 +2,15 @@
 
 Shared .NET libraries for Recron and QuantCore.
 
+`Infrastructure.Http.PayloadContractSchemas.Describe<T>(readOnlyOptions)` exports canonical JSON Schema metadata through the existing `ContractSchemas` exporter. Its 512-entry cache distinguishes both payload type and immutable serialization profile; uncached entries are still exported when capacity is reached. `JsonPayloadSchema` contains the definition and canonical SHA-256. Message identities, versions, owner catalogs and envelope binding remain application concerns. This source API requires the next immutable Infrastructure release before package-only consumers can adopt it.
+
+`Infrastructure.Http.ManifestDefinition<TReference>.Create<TDocument>` describes an owner's manifest kind, DTO, reference reader and semantic validator. `IManifestDefinitionProvider<TReference>` supplies an explicit collection for host composition. These opt-in contracts add no scanning or bootstrap registration and do not choose schemas, HTTP routes, ownership policy or persistence. QuantCore supplies six owner-local providers and its strict JSON/schema adapter through the source bridge. Package-only consumers require the next Infrastructure release.
+
 Documentation: [Recron project docs](https://docs.bluebraces.online/projects/extensions/).
+
+## Package management
+
+NuGet dependency versions are managed centrally in [Directory.Packages.props](Directory.Packages.props). Projects declare only the packages they use through versionless `PackageReference` items and inherit central package management without local opt-outs. The shared version of the published Extensions packages remains in [Directory.Build.props](Directory.Build.props).
 
 ## Host configuration
 
@@ -25,9 +33,19 @@ await app.RunAsync();
 
 Recron continues to use `RunModuleAsync` / `AddServiceDefaults` with required Keycloak configuration, structured logging, API middleware, validation, error handling and caching. `AddServiceDefaults` delegates the common registrations to `AddHostDefaults`; its existing standard HTTP retry policy and authentication requirements are preserved. Call one bootstrap per host, not both. `/health` and `/alive` only reflect registered checks; the default self-check does not prove business readiness.
 
-`Extensions.Application` provides command/query handler contracts and pagination. `Extensions.Domain` provides entity/audit bases, current-user contracts, roles and a domain exception. They do not yet provide a financial ledger, event envelope, outbox/inbox, broker integration or simulation clock. These are not prerequisites for an empty solution skeleton. Use platform `TimeProvider` or module-owned contracts when implementing the actual temporal requirements rather than adding an empty shared library.
+The additive `AddServiceDefaults(builder, keycloakSection, configureLogging)` overload accepts a host-owned logging registration callback instead of invoking `AddStructuredLogging`. It then composes the same API services as the original overload. The callback must install the logger required by the selected request middleware. The original two-argument method delegates with the original `AddStructuredLogging` callback; `RunModuleAsync` retains that path. `AddHostDefaults` itself still does not choose a logging format or category thresholds. QuantCore uses the callback to share one logging policy across its API, worker and migrator hosts. This source API has not been published or validated by a build/consumer run.
 
-The pending 1.9.0 release includes the new `AddHostDefaults` API and the `AiRequestExecutor` overload accepting caller-owned `ChatOptions`; neither is present in the cached 1.8.1 package used by Recron. `Directory.Build.props` owns the shared package version. QuantCore currently uses an explicit local source bridge for the unreleased Infrastructure/Messaging/Jobs APIs. Recron keeps its package selection. Release requires separate pack/consumer verification of every package listed in Extensions.slnx; no package was published or existing version replaced. Recron's package selection is unchanged.
+`UseCommonConfiguration(app, configureRequestLogging)` is a separate additive opt-in for a host-owned request-logging policy. Its callback runs at the original request-logging position; health, CORS, rate limiting, authentication/authorization, OpenAPI and exception middleware keep their existing order. The original overload delegates with `UseStructuredLogging`, so existing Recron callers retain their request fields and middleware behavior. QuantCore opts into its own bounded request-summary allowlist and GUID actor attribution; the shared bootstrap neither infers that product policy nor changes legacy consumers. This source overload requires an Extensions release for NuGet consumption; no host or executable compatibility check has run.
+
+`Extensions.Application` provides command/query handler contracts and pagination. `Extensions.Domain` provides entity/audit bases, current-user contracts, roles and a domain exception. Messaging, Jobs, Storage and Integrations supply separate opt-in technical mechanisms. These libraries do not supply a product's financial ledger, broker protocol or simulation clock. These are not prerequisites for an empty solution skeleton. Use platform `TimeProvider` or module-owned contracts when implementing the actual temporal requirements rather than adding an empty shared library.
+
+The pending 1.9.0 release includes the new `AddHostDefaults` API and the `AiRequestExecutor` overload accepting caller-owned `ChatOptions`; neither is present in the cached 1.8.1 package used by Recron. `Directory.Build.props` owns the shared package version. QuantCore currently uses an explicit local source bridge for the unreleased Infrastructure/Messaging/Jobs/Integrations APIs. Recron keeps its package selection. Release requires separate pack/consumer verification of every package listed in Extensions.slnx; no package was published or existing version replaced. Recron's package selection is unchanged.
+
+## Provider integrations
+
+The source-only [Extensions.Integrations](Extensions.Integrations/README.md) package provides bounded HTTP/JSON transport, caches, quota admission and renewable request leases. It references Domain only: budget execution, policy mapping, authoritative quota storage and diagnostics are explicit host ports. HTTP transport adds no automatic retries or product credentials; connection/SSRF policy belongs to the managed client and host executor.
+
+QuantCore consumes the package through its source bridge in MarketData.Contracts and the Alpaca/OANDA/Twelve Data adapters. The product's approval/counter/hash authority remains in QuantCore, while the package shares the UTC-window calculation and lease lifecycle. Recron does not opt in or change package selection. Immutable release, packing and clean-consumer evidence remain separate work.
 
 ## Neutral contracts and coded failures
 

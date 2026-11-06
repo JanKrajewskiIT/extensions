@@ -1,16 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>Extensions.Storage</PackageId>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     <Description>Versioned S3 artifacts, integrity verification and host-owned dependency registration.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Extensions.Domain/Extensions.Domain.csproj" />
-    <PackageReference Include="AWSSDK.S3" Version="4.0.104.6" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="11.0.0-rc.2.26504.105" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.0.0-rc.2.26504.105" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="11.0.0-rc.2.26504.105" />
+    <PackageReference Include="AWSSDK.S3" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" />
   </ItemGroup>
   <ItemGroup>
     <None Update="README.md" Pack="true" PackagePath="/" />

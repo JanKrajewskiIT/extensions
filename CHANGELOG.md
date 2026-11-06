@@ -1,5 +1,22 @@
 # Release notes
 
+## Unreleased — explicit manifest definitions
+
+Infrastructure.Http adds opt-in `ManifestDefinition<TReference>` and `IManifestDefinitionProvider<TReference>` for explicit owner catalogs. The typed factory binds a document type, reference reader and semantic validator without assembly scanning, automatic registration or product dependencies. QuantCore supplies its six module providers; strict serialization, schema compilation, module authorization and publication receipts remain consumer-owned. No package version or dependency changed. Builds, schema/hash comparison, packing and clean-consumer acceptance remain unrun.
+
+## Unreleased — payload schema metadata
+
+Infrastructure.Http adds opt-in `PayloadContractSchemas` and `JsonPayloadSchema`. The bounded cache is keyed by the payload type and the exact read-only JSON options instance, exports through the existing ContractSchemas helper and hashes canonical JSON through Domain serialization. Owners supply their payload DTOs and retain topic, producer, version and envelope policy. QuantCore removes its former Persistence.MessageSchemas implementation and adopts this helper through the existing source bridge. No package dependency/version was added or changed; consumer schema/hash comparisons and package/build acceptance remain unrun.
+
+## Unreleased — provider integrations
+
+Adds Extensions.Integrations as an opt-in source package, depending only on Extensions.Domain. It contains bounded provider HTTP/JSON transport, a bounded TTL cache, local/distributed quota gates, the shared UTC-window calculation and renewable leases. Quota authority, product priorities, execution budgets and logging enter through explicit ports; no EF/Jobs/ASP.NET or product dependency is added.
+
+QuantCore adopts the source package, removes the replaced Transport implementations and rebuilds its adapter references. Its provider policy/control DTOs move to MarketData.Contracts while retaining JSON fields and canonical policy hash rules. Transport/gate types move to Extensions.Integrations; source/binary consumers must update namespaces and rebuild. Generic transient failures now carry DependencyFailureException metadata instead of RetryableJobException. Provider raw capture remains on QuantCore's existing artifact facade pending Storage adoption.
+
+No package version was changed or published. Builds, packing, restore, runtime and consumer checks remain unrun. Release must validate exact package contents and clean consumers; source-bridge compilation is not package-release evidence.
+
+
 ## Unreleased — CV ownership
 
 ### Breaking API change

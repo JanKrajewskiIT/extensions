@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>Extensions.Jobs</PackageId>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     <Description>Opt-in durable jobs, recurring schedules, fenced execution and work budgets.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

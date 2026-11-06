@@ -4,13 +4,18 @@ using Microsoft.Extensions.Options;
 
 namespace Extensions.Messaging;
 
-public sealed class KafkaDependencyHealthCheck(IOptions<KafkaOptions> options) : IHealthCheck
+public sealed class KafkaDependencyHealthCheck(IOptions<KafkaOptions> options,
+	Func<Exception?, HealthCheckResult>? failureResult) : IHealthCheck
 {
+	public KafkaDependencyHealthCheck(IOptions<KafkaOptions> options) : this(options, null)
+	{
+	}
+
 	public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
 	{
-		var settings = options.Value;
 		try
 		{
+			var settings = options.Value;
 			using var admin = new AdminClientBuilder(new AdminClientConfig
 			{
 				BootstrapServers = settings.BootstrapServers,
@@ -21,11 +26,18 @@ public sealed class KafkaDependencyHealthCheck(IOptions<KafkaOptions> options) :
 				SslCaLocation = settings.SslCaLocation,
 			}).Build();
 			var metadata = await Task.Run(() => admin.GetMetadata(TimeSpan.FromSeconds(5)), cancellationToken);
-			return metadata.Brokers.Count > 0 ? HealthCheckResult.Healthy() : HealthCheckResult.Unhealthy("No Kafka brokers available.");
+			if (metadata.Brokers.Count > 0)
+			{
+				return HealthCheckResult.Healthy();
+			}
 		}
-		catch (Exception exception) when (exception is not OperationCanceledException)
+		catch (Exception exception) when (exception is not OperationCanceledException ||
+			failureResult is not null && !cancellationToken.IsCancellationRequested)
 		{
-			return HealthCheckResult.Unhealthy("Kafka authentication or metadata request failed.");
+			return failureResult?.Invoke(exception)
+				?? HealthCheckResult.Unhealthy("Kafka authentication or metadata request failed.");
 		}
+
+		return failureResult?.Invoke(null) ?? HealthCheckResult.Unhealthy("No Kafka brokers available.");
 	}
 }

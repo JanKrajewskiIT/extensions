@@ -21,6 +21,8 @@ internal sealed class DatabaseWritePipeline
 			return await persist(acceptAllChangesOnSuccess, token);
 		}
 
+		token.ThrowIfCancellationRequested();
+		DatabaseTransactions.RequireCompatibleExecutionStrategy(context);
 		await using var transaction = context.Database.CurrentTransaction is null
 			? await context.Database.BeginTransactionAsync(token) : null;
 		if (plan.Admit is not null)
